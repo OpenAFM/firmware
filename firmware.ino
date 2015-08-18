@@ -1,5 +1,5 @@
 #include "DACWriter.h"
-#inculde "DataRecv.h"
+#include "DataRecv.h"
 #include ? // DataSend
 
 /* Pin Definitions */
@@ -20,9 +20,7 @@ int incomingByte;
 int level;
 */
 
-void setup() {        
-        pinMode(DACClkPin, OUTPUT);
-        pinMode(DACDataPin, OUTPUT);
+void setup() {
         pinMode(DataRecvPin, INPUT);
         
         /* Trigger the interrupt when pin 2 changes value*/
@@ -31,7 +29,7 @@ void setup() {
 }
 
 void loop() {
-       int pixelData[pixelCount];
+        int pixelData[pixelCount];
     
         for (int i = 0; i < pixelCount; ++i) {
             	/* Call DACWriter Function */
