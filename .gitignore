@@ -1,0 +1,7 @@
+*.vcxproj*
+*.sdf*
+Visual\ Micro
+Visual/ Micro
+*.opensdf
+*.sln
+*.v12*
