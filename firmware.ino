@@ -1,15 +1,40 @@
-/*
- Name:		firmware.ino
- Created:	8/18/2015 3:49:25 AM
- Author:	User
-*/
+#include "DACWriter.h"
+#inculde "DataRecv.h"
+#include ? //DataSend
 
-// the setup function runs once when you press reset or power the board
+#define DACClkPin ?
+#define DACDataPin ?
+#define DataRecvPin ?
+
+#define pixelCount ? //Pixels in one line
+#define detectTimes ? //Samples of one pixel
+
+DACWriterClass DACWriter;
+DataRecvClass DataRecv;
+
 void setup() {
+	pinMode(DACClkPin, OUTPUT);
+	pinMode(DACDataPin, OUTPUT);
+	pinMode(DataRecvPin, INPUT);
+
+	/* Trigger the interrupt when pin 2 changes value*/
+	/* See "https://www.arduino.cc/en/Reference/AttachInterrupt" */
+	attachInterrupt(0, interrput, HIGH); 
+}
+
+void loop() {
+	int pixelData[pixelCount];
+
+	for (int i = 0; i < pixelCount; ++i) {
+		/* Call DACWriter Function */
+		
+		/* Call DataRecv Function */
+		pixelData[i] = DataRecv.detectPixel(DataRecvPin);
+	}
+	/* Send Data */
 
 }
 
-// the loop function runs over and over again until power down or reset
-void loop() {
-  
+void interrupt() {
+	delay(10);
 }
