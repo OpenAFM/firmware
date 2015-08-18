@@ -1,6 +1,6 @@
 #include "DataRecv.h"
 
-int DataRecvClass::detectPixel(int pin, int detectTimes;)
+int DataRecvClass::detectPixel(int pin, int detectTimes)
 {
 	int temp = 0;
 	int average = 0;
