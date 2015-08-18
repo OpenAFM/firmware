@@ -16,6 +16,8 @@ void loop() {
         for (int i = 0; i < pixelCount; ++i) {
                 pixelData[i] = RECV.detectPixel(DataRecvPin, detectTimes);
                 Serial.println(pixelData[i]);
+                delay(100);
         }
+        delay(1000);
 }
 
