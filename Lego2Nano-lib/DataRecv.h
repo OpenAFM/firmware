@@ -14,7 +14,7 @@ class DataRecvClass
 	protected:
 
 	public:
-		int detectPixel(int);
+		int detectPixel(int, int);
 };
 
 extern DataRecvClass DataRecv;

@@ -4,7 +4,7 @@
 #define pixelCount 1
 #define detectTimes 10 // Samples of one pixel
 
-DataRecvClass DataRecv;
+DataRecvClass RECV;
 
 void setup() {
         Serial.begin(9600);
@@ -14,7 +14,7 @@ void setup() {
 void loop() {
         int pixelData[pixelCount];    
         for (int i = 0; i < pixelCount; ++i) {
-                pixelData[i] = DataRecv.detectPixel(DataRecvPin);
+                pixelData[i] = RECV.detectPixel(DataRecvPin, detectTimes);
                 Serial.println(pixelData[i]);
         }
 }
