@@ -12,9 +12,10 @@ int SDI = 2;
 int _SCK = 3;
 int LOAD = 4;
 int LDAC = 5;
+int RNG = 0;
 
-int incomingByte;
-int level;
+
+DACWriterClass writer;
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -33,85 +34,15 @@ void setup() {
 
 	// command is clocked on rising edge
 	digitalWrite(_SCK, LOW);
+
+	// int stepSize, int dataPin, int clkPin, int loadPin, int ldacPin, bool rng, unsigned long serialRate
+	writer.init(1, SDI, _SCK, LOAD, LDAC, RNG, 115200);
 }
 
-void writeHigh(){
-	digitalWrite(_SCK, HIGH);
-	digitalWrite(SDI, HIGH);
-	digitalWrite(_SCK, LOW);
-}
-
-void writeLow(){
-	digitalWrite(_SCK, HIGH);
-	digitalWrite(SDI, LOW);
-	digitalWrite(_SCK, LOW);
-}
-
-void loadDAC(){
-	digitalWrite(LOAD, LOW);
-	digitalWrite(LOAD, HIGH);
-}
-
-// channel max is 4095
-void DACwrite(int input, int channel) {
-
-	int k;
-
-	// range from 0 to 255
-	input = input % 256;
-
-	// choose channel
-	// 0 0 = A
-	// 1 0 = B
-	// 0 1 = C
-	// 1 1 = D
-	writeLow();
-	writeLow();
-
-	// 1x gain (0) or 2x (1)
-	writeLow();
-
-	// bit shifting to determine when to 
-	// send 1 and when to send 0 in the command 
-	// word.
-	// sending most significant bit first
-	// TODO negation ~ ??
-	for (int c = 11; c >= 0; c--)
-	{
-		// 0110 - 6
-		// -----
-		// 0000 - 0 - 0
-		// 0001 - 1 - 1
-		// 0011 - 3 - ??
-		// shifting bits to the right.
-		k = input >> c;
-
-		// true if k is 1
-		if (k & 1){
-			// this is a 1
-			writeHigh();
-		}
-		else{
-			// this is a 0
-			writeLow();
-		}
-
-	}
-
-	// load to output registers
-	loadDAC();
-}
 
 // the loop routine runs over and over again forever:
 void loop() {
-	DACwrite(0, 0);
-	delay(1000);
-	DACwrite(64, 0);
-	delay(1000);
-	DACwrite(128, 0);
-	delay(1000);
-	DACwrite(196, 0);
-	delay(1000);
-	DACwrite(255, 0);
-	delay(1000);
+	writer.move(0);
+	writer.stepUp(0);
+	delay(30);
 }
