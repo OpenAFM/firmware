@@ -8,9 +8,9 @@
 #define LDAC 5
 #define RECVPin A7
 
-#define pixelCount 8
+#define pixelCount 8 // Pixels in one line
 
-int detectTimes = 10; // Parameter
+int detectTimes = 10; // Parameter, Times to detect one pixel
 int pixelData[pixelCount] = {0};
 
 DACWriterClass WRITER;
@@ -24,9 +24,9 @@ void dataSend(int* array) {
     for (int i = 0; i < pixelCount; ++i) {
         Serial.print(array[i]);
         if (i == pixelCount - 1)
-            Serial.print(';');
+            Serial.print(';'); // Send ';' when all numbers are sent
         else
-            Serial.print(',');
+            Serial.print(','); // Send ',' when a number is sent
     }
 }
 
@@ -38,9 +38,10 @@ void startWork() {
         /* Call DACWriter Function */
 	WRITER.move(0);
 	WRITER.stepUp(0);
-	delay(30);
+	delay(25);
     	/* Call DataRecv Function */
         pixelData[i] = RECV.detectPixel(RECVPin, detectTimes);
+        delay(25);
     }
     /* Send Data */
     dataSend(pixelData);
@@ -50,7 +51,6 @@ void setParameter() {
 }
 
 void setup() {
-    dataSend(pixelData);
     Serial.begin(9600);
     pinMode(RECVPin, INPUT);
     /* Trigger the interrupt when pin 2 changes value*/
@@ -60,7 +60,7 @@ void setup() {
 
 void loop() {
     if (Serial.available()) {
-        String command = Serial.readStringUntil(';');
+        String command = Serial.readStringUntil(';'); // ';' Stands for the end of a command
         if (command == "IN") initialize();
         else if (command == "SW") startWork();
         else if (command == "SP") setParameter();
