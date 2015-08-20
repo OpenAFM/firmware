@@ -16,7 +16,6 @@ class DataRecvClass
 	public:
 		int detectPixel(int, int);
 };
-
 extern DataRecvClass DataRecv;
 
 #endif
