@@ -1,18 +1,18 @@
-// 
-// 
-// 
-
-#include "DACWriter.h"
-#include "DataRecv.h"
+#include "DACController.h"
 
 const int CHANNEL_A = 0;
 const int CHANNEL_B = 1;
 const int CHANNEL_C = 2;
 const int CHANNEL_D = 3;
 
-void DACWriterClass::init(int stepSize, int lineSize, int dataPin, int clkPin, int loadPin, int ldacPin, bool rng, unsigned long serialRate)
-{
-	
+#define ON HIGH
+#define OFF LOW
+
+DACController::DACController(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG, unsigned long serialRate) {
+	this->reset(stepSize, lineSize, dataPin, clockPin, loadPin, ldacPin, useRNG, serialRate);
+}
+
+void DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG, unsigned long serialRate) {
 	this->stepSize = stepSize;
 	this->lineSize = lineSize;
 
@@ -20,7 +20,7 @@ void DACWriterClass::init(int stepSize, int lineSize, int dataPin, int clkPin, i
 	this->dataPin = dataPin;
 	this->loadPin = loadPin;
 	this->ldacPin = ldacPin;
-	this->rng = rng;
+	this->useRNG = useRNG;
 
 	this->currentStep = 0;
 	this->currentX = 0;
@@ -34,48 +34,48 @@ void DACWriterClass::init(int stepSize, int lineSize, int dataPin, int clkPin, i
 
 	Serial.begin(serialRate);
 
-	digitalWrite(this->loadPin, HIGH);
-	digitalWrite(this->ldacPin, LOW);
+	digitalWrite(this->loadPin, ON);
+	digitalWrite(this->ldacPin, OFF);
 
 	// command is clocked on rising edge
-	digitalWrite(this->clkPin, LOW);
+	digitalWrite(this->clkPin, OFF);
 }
 
 
 
-int DACWriterClass::go(int channel, int value) {
+int DACController::go(int channel, int value) {
 	
-	// Serial.print("channel: "); Serial.print(channel);
-	// Serial.print(" value: "); Serial.println(value);
 	//  Set DAC Channel LMB (left most significant bit)
-	// 0 0 = A 0  X
-	// 0 1 = B 1  Y
-	// 1 0 = C 2  Z
-	// 1 1 = D 3  -
+	// 0 0 = A  X
+	// 0 1 = B  Y
+	// 1 0 = C  Z
+	// 1 1 = D  -
 	
 	switch (channel)
 	{
-	case CHANNEL_A:
-		sendLow();
-		sendLow();
-		break;
-	case CHANNEL_B:
-		sendLow();
-		sendHigh();
-		break;
-	case CHANNEL_C:
-		sendHigh();
-		sendLow();
-		break;
-	case CHANNEL_D:
-		sendHigh();
-		sendHigh();
-		break;
+		case CHANNEL_A:
+			sendLowSignal();
+			sendLowSignal();
+			break;
+
+		case CHANNEL_B:
+			sendLowSignal();
+			sendHighSignal();
+			break;
+
+		case CHANNEL_C:
+			sendLowSignal();
+			sendHighSignal();
+			break;
+
+		case CHANNEL_D:
+			sendHighSignal();
+			sendHighSignal();
+			break;
 	}
 
 	// 1x gain (0) or 2x (1)
-	//rng ? sendHigh() : sendLow();
-	sendLow();
+	useRNG ? sendHighSignal() : sendLowSignal();
 
 	for (int i = 7; i >= 0; i--)
 	{
@@ -84,36 +84,36 @@ int DACWriterClass::go(int channel, int value) {
 
 		// true if k (LMS) is 1
 		if (k & 1) {
-			sendHigh();
+			sendHighSignal();
 		} else {
-			sendLow();
+			sendLowSignal();
 		}
 	}
 
 	// load to output registers
-	load();
-	digitalWrite(dataPin, LOW);
+	loadDAC();
+	digitalWrite(dataPin, OFF);
 }
 
 
-int DACWriterClass::sendHigh() {
-	digitalWrite(clkPin, HIGH);
-	digitalWrite(dataPin, HIGH);
-	digitalWrite(clkPin, LOW);
+int DACController::sendHighSignal() {
+	digitalWrite(clkPin, ON);
+	digitalWrite(dataPin, ON);
+	digitalWrite(clkPin, OFF);
 }
 
-int DACWriterClass::sendLow() {
-	digitalWrite(clkPin, HIGH);
-	digitalWrite(dataPin, LOW);
-	digitalWrite(clkPin, LOW);
+int DACController::sendLowSignal() {
+	digitalWrite(clkPin, ON);
+	digitalWrite(dataPin, OFF);
+	digitalWrite(clkPin, OFF);
 }
 
-int DACWriterClass::load() {
-	digitalWrite(loadPin, LOW);
-	digitalWrite(loadPin, HIGH);
+int DACController::loadDAC() {
+	digitalWrite(loadPin, OFF);
+	digitalWrite(loadPin, ON);
 }
 
-int DACWriterClass::reset() {
+int DACController::reset() {
 	currentStep = 0;
 	currentZ = 0;
 	setCoordinates();
@@ -122,25 +122,25 @@ int DACWriterClass::reset() {
 	return 1;
 }
 
-int DACWriterClass::nextLine() {
+int DACController::nextLine() {
 	int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
 	currentStep += delta;
 	setCoordinates();
 }
 
-int DACWriterClass::eol() {
+int DACController::eol() {
 	nextLine();
 	currentStep--;
 	setCoordinates();
 }
 
-int DACWriterClass::setCoordinates() {
+int DACController::setCoordinates() {
 	currentX = currentStep % lineSize;
 	currentY = currentStep / lineSize;
 }
 
 
-int DACWriterClass::fwd() {
+int DACController::increaseVoltage() {
 
 	// step fwd
 	currentStep += stepSize;
@@ -153,7 +153,7 @@ int DACWriterClass::fwd() {
 	return 0;
 }
 
-int DACWriterClass::bwd() {
+int DACController::decreaseVoltage() {
 
 	// step back
 	currentStep -= stepSize;
@@ -165,11 +165,11 @@ int DACWriterClass::bwd() {
 
 	return 0;
 }
-unsigned DACWriterClass::getLineSize() {
+int DACController::getLineSize() {
 	return lineSize;
 }
 
-void DACWriterClass::print() {
+void DACController::print() {
 	Serial.print("Step: "); Serial.print(currentStep); Serial.print(" LineSize: "); Serial.print(lineSize);
 	Serial.print(" ["); Serial.print(currentX); Serial.print(", ");
 	Serial.print(currentY); Serial.print("]");
@@ -177,5 +177,4 @@ void DACWriterClass::print() {
 	Serial.flush();
 }
 
-DACWriterClass DACWriter;
 

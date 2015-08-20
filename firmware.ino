@@ -1,76 +1,116 @@
-#include "DACWriter.h"
-//#include "DataRecv.h"
-#include "Controller.h"
+#include "Scanner.h"
 
 /* Pin Definitions */
-const int SDI = 2;
-const int CLK = 3;
-const int LOAD = 4;
-const int LDAC = 5;
-const int RNG= 0;
+#define SDI 2
+#define _SCK 3
+#define LOAD 4
+#define LDAC 5
 
-//#define DataRecvPin ?
+#define STEPSIZE 1
+#define RNG 0
+#define BAUDRATE 9600
 
-//#define pixelCount ? // Pixels in one line
-//#define detectTimes ? // Samples of one pixel
+#define RECVPin A7
 
+#define MAX 10000
 
-//DACWriterClass writer;
-//DataRecvClass DataRecv;
-ControllerClass ctrl;
-
-void setup() {
-      //  pinMode(DataRecvPin, INPUT);
-        
-        /* Trigger the interrupt when pin 2 changes value*/
-        /* See "https://www.arduino.cc/en/Reference/AttachInterrupt" */
-       // attachInterrupt(0, interrput, HIGH); 
-
-	// int stepSize, int dataPin, int clkPin, int loadPin, int ldacPin, bool rng, unsigned long serialRate
-	//writer.init(1, 256, SDI, CLK, LOAD, LDAC, false, 115200);
-		//1, SDI, _SCK, LOAD, LDAC, RNG, 115200);
-	//byte lineSize = 255;
-	ctrl = ControllerClass();
-	ctrl.init(1, 256, SDI, CLK, LOAD, LDAC, false, 115200, 0, 5);
-}
-
-void loop() {
-       /* int pixelData[pixelCount];
-    
-        for (int i = 0; i < pixelCount; ++i) {
-            	/* Call DACWriter Function */
-        	
-        	/* Call DataRecv Function */
-        //        pixelData[i] = DataRecv.detectPixel(DataRecvPin);
-        //}
-	
-	//writer.reset();
-	/*for (unsigned int i = 0; i < 25500; i++) {
-		writer.fwd();
-	}*/
-
-	/*for (long i = 0; i < 255; i++) {
-		writer.bwd();
-		delay(20);
-	}*/
-
-	
-
-	//writer.reset();
-	//delay(5000);
-
-	//writer.eol();
-	//delay(5000);
-
-	ctrl.scanLine();
+int pixelCount; // Parameter, Pixels in one line
+int lineCount; // Parameter, The line number we will scan 
+int detectTimes = 10; // Parameter, Times to detect one pixel
+int pixelData[MAX] = { 0 };
 
 
+Scanner ctrl();
 
-        /* Send Data */
-
-
-}
+/* ================ */
 
 void interrupt() {
 	delay(10);
+}
+
+/* ================ */
+
+void initialize() {
+}
+
+/* ================ */
+
+void startWork() {
+	
+}
+
+
+void ScanOneLine() {
+	for (int i = 0; i < pixelCount; ++i) {
+		/* Call DACWriter Function */
+		//MoveToNextPixel();
+		delay(25);
+		/* Call DataRecv Function */
+		//pixelData[i] = RECV.detectPixel(RECVPin, detectTimes); // calculate the avg for one pixel for one-direction scan
+		delay(25);
+	}
+	for (int i = pixelCount - 1; i > -1; --i) {
+		/* Call DACWriter Function */
+		//MoveToPreviousPixel();
+		delay(25);
+		/* Call DataRecv Function */
+		//pixelData[i] += RECV.detectPixel(RECVPin, detectTimes); // calculate the avg for one pixel for one-direction scan
+		pixelData[i] /= 2;
+		delay(25);
+	}
+}
+
+void SendData(int* array) {
+	for (int i = 0; i < pixelCount; ++i) {
+		Serial.print(array[i]);
+		if (i == pixelCount - 1)
+			Serial.print(';'); // Send ';' when all numbers are sent
+		else
+			Serial.print(','); // Send ',' when a number is sent
+	}
+}
+
+/* ================ */
+
+void setParameter() {
+	pixelCount = ConvertStrToInt(Serial.readStringUntil(','));
+	lineCount = ConvertStrToInt(Serial.readStringUntil(';'));
+}
+
+int ConvertStrToInt(String str) {
+	return 0;
+}
+
+/* ================ */
+
+void setup() {
+	Serial.begin(BAUDRATE);
+	//SCANNER.init(STEPSIZE, SDI, _SCK, LOAD, LDAC, RNG, BAUDRATE);
+	pinMode(RECVPin, INPUT);
+	/* Trigger the interrupt when pin 2 changes value*/
+	/* See "https://www.arduino.cc/en/Reference/AttachInterrupt" */
+	attachInterrupt(0, interrupt, HIGH);
+
+
+	//ctrl = ControllerClass();
+	//ctrl.init(1, 256, SDI, _SCK, LOAD, LDAC, false, 115200, 0, 5);
+}
+
+void loop() {
+	if (Serial.available()) {
+		String command = Serial.readStringUntil(';'); // ';' Stands for the end of a command
+		if (command == "IN") initialize();
+		else if (command == "SP") setParameter();
+		else if (command == "SW") {
+			for (int i = 0; i < lineCount; ++i) {
+				startWork(); // work for one line
+			//	MoveToNextLine();
+				if (i == lineCount - 1)
+					Serial.print("FINISH;");
+			}
+		}
+		delay(1);
+	}
+
+	//ctrl.scanLine();
 }
