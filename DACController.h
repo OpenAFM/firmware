@@ -11,8 +11,7 @@
 
 	#define DAC_TLC_5620_CONTROLLER "0.0.1"
 	
-	class DACController
-	{
+class DACController {
 
 	 private:
 		 int stepSize;
@@ -21,7 +20,7 @@
 		 bool useRNG;
 
 		 int dataPin;
-		 int clkPin;
+		 int clockPin;
 		 int loadPin;
 		 int ldacPin;
 
@@ -38,8 +37,10 @@
 
 	 public:
 		 DACController();
-		DACController(int, int, int, int, int, int, bool, unsigned long);
-		void reset(int, int, int, int, int, int, bool, unsigned long);
+		DACController(int, int, int, int, int, int, bool);
+		~DACController();
+
+		void reset(int, int, int, int, int, int, bool);
 		int increaseVoltage();
 		int decreaseVoltage();
 

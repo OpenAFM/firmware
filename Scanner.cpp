@@ -4,12 +4,13 @@
 
 #include "Scanner.h"
 
-Scanner::Scanner(DACController controller, SignalSampler sampler) {
-	this->sampler = sampler;
-	this->controller = controller;
+Scanner::Scanner(const DACController &controller, const SignalSampler &sampler) : controller(controller), sampler(sampler) {
 	this->startTime = 0;
 	this->endTime = 0;
+	Serial.print("Scanner(args)");
 }
+
+Scanner::~Scanner() {}
 
 void Scanner::reset()
 {
@@ -22,8 +23,8 @@ void Scanner::reset()
 
 
 int Scanner::scanLine(int pixels[]) {
-
-	for (unsigned int x = 0; x < controller.getLineSize(); x++) {
+	unsigned int x = 0;
+	for (x; x < controller.getLineSize(); x++) {
 		pixels[x] = sampler.detectPixel();
 
 		// don't move beyond eol
@@ -33,7 +34,7 @@ int Scanner::scanLine(int pixels[]) {
 
 	// TODO send data
 
-	for (unsigned int x = 0; x < controller.getLineSize(); x++) {
+	for (x; x < controller.getLineSize(); x++) {
 		pixels[x] = sampler.detectPixel();
 
 		// don't move beyond the BOL
@@ -44,10 +45,14 @@ int Scanner::scanLine(int pixels[]) {
 	linesScanned++;
 }
 
-int Scanner::start() {
+int Scanner::start(int lineLength) {
+
 	// get start time
 	startTime = millis();
+	int* pixels = 0;
+	pixels[lineLength * 2];
 
+	scanLine(pixels);
 
 }
 
