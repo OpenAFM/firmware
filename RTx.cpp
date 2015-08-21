@@ -16,7 +16,7 @@ void RTx::reset() {
 	this->outputCount = 0;
 }
 
-int RTx::sendData(int pixels[], int pixelCount){
+void RTx::sendData(int pixels[], int pixelCount){
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
     if (i == pixelCount - 1)
@@ -24,6 +24,11 @@ int RTx::sendData(int pixels[], int pixelCount){
     else
       Serial.print(','); // Send ',' when a number is sent
   }
+}
+
+void RTx::sendString(String message){
+  Serial.print(message);
+  Serial.println(';'); // Send ';' when all numbers are sent
 }
 
 

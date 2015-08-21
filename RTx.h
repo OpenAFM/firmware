@@ -23,7 +23,8 @@ class RTx
  public:
 	RTx();
 	void reset();
-	int sendData(int[], int);
+	void sendData(int[], int);
+  void sendString(String);
 	String listen();
 };
 

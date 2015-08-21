@@ -106,7 +106,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("send listen");
+  phone.sendString("send listen");
   String command=phone.listen();
   delay(200);
 	if (command == "IN") initialize();
