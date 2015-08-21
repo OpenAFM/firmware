@@ -2,7 +2,7 @@ from	time	import	sleep
 import	serial
 import matplotlib.pyplot as plt
 import re
-ser	=	serial.Serial('COM4',	9600)	#	Establish	the	connection	on	a	specific	port
+ser	=	serial.Serial('COM6',	9600)	#	Establish	the	connection	on	a	specific	port
 ser.write('SW;')
 while	True:
 	ser.write('SW;')

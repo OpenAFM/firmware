@@ -11,7 +11,7 @@
 #define RNG 0
 #define BAUDRATE 9600
 
-#define RECVPin A7
+#define RECVPin A0
 
 #define MAX 255
 
