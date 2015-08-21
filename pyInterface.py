@@ -2,12 +2,15 @@ from	time	import	sleep
 import	serial
 import matplotlib.pyplot as plt
 import re
-ser	=	serial.Serial('COM6',	9600)	#	Establish	the	connection	on	a	specific	port
+ser	=	serial.Serial('COM4',	9600)	#	Establish	the	connection	on	a	specific	port
 ser.write('SW;')
 while	True:
 	ser.write('SW;')
 	#	Convert	the	decimal	number	to	ASCII	then	send	it	to	the	Arduino
+	print "read data"
 	data=	ser.readline()	
+	print data
+	print "done"
 	#	Read	the	newest	output	from	the	Arduino
 	matchnum=re.compile("[0-9]")
 	matchdata=re.compile(".*;")

@@ -17,18 +17,14 @@
 class RTx
 {
  private:
-	 int readPin;
-	 int writePin;
-	 boolean isSerial;
 	 unsigned long inputCount;
 	 unsigned long outputCount;
 
  public:
-	RTx(int, int, bool);
+	RTx();
 	void reset();
 	int send(int[]);
-	int read(int[]);
-	String read();
+	String listen();
 };
 
 
