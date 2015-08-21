@@ -1,4 +1,6 @@
+
 #include "Scanner.h"
+#include "RTx.h"
 
 /* Pin Definitions */
 #define SDI 2
@@ -9,10 +11,9 @@
 #define STEPSIZE 1
 #define RNG 0
 #define BAUDRATE 9600
-
 #define RECVPin A7
 
-#define MAX 10000
+#define MAX 255
 
 int pixelCount; // Parameter, Pixels in one line
 int lineCount; // Parameter, The line number we will scan 
@@ -21,6 +22,7 @@ int pixelData[MAX] = { 0 };
 
 
 Scanner ctrl();
+RTx phone = RTx();
 
 /* ================ */
 
@@ -30,13 +32,29 @@ void interrupt() {
 
 /* ================ */
 
-void initialize() {
+void initialize() {Serial.print("got it;");
 }
 
 /* ================ */
 
 void startWork() {
-	
+    ScanOneLine();
+    //(pixelData);
+}
+
+void MoveToPreviousPixel(){
+    //SCANNER.move(0);
+    //SCANNER.stepDn(0);
+}
+
+void MoveToNextPixel(){
+    //SCANNER.move(0);
+    //SCANNER.stepUp(0);
+}
+
+void MoveToNextLine(){
+    //SCANNER.move(1);
+    //SCANNER.stepUp(1);
 }
 
 
@@ -60,15 +78,6 @@ void ScanOneLine() {
 	}
 }
 
-void SendData(int* array) {
-	for (int i = 0; i < pixelCount; ++i) {
-		Serial.print(array[i]);
-		if (i == pixelCount - 1)
-			Serial.print(';'); // Send ';' when all numbers are sent
-		else
-			Serial.print(','); // Send ',' when a number is sent
-	}
-}
 
 /* ================ */
 
@@ -97,19 +106,18 @@ void setup() {
 }
 
 void loop() {
-	if (Serial.available()) {
-		String command = Serial.readStringUntil(';'); // ';' Stands for the end of a command
-		if (command == "IN") initialize();
-		else if (command == "SP") setParameter();
-		else if (command == "SW") {
-			for (int i = 0; i < lineCount; ++i) {
-				startWork(); // work for one line
-			//	MoveToNextLine();
-				if (i == lineCount - 1)
-					Serial.print("FINISH;");
-			}
-		}
-		delay(1);
+  Serial.println("send listen");
+  String command=phone.listen();
+  delay(200);
+	if (command == "IN") initialize();
+  else if (command == "SP") setParameter();
+  else if (command == "SW") {
+    for (int i = 0; i < lineCount; ++i) {
+      startWork(); // work for one line
+      //  MoveToNextLine();
+      if (i == lineCount - 1)
+      Serial.println("FINISH;");
+      }
 	}
 
 	//ctrl.scanLine();
