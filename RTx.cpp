@@ -16,16 +16,23 @@ void RTx::reset() {
 	this->outputCount = 0;
 }
 
-int RTx::send(int[]){
-	// TODO: write data to writePin if isSerial == false
-	// else write data to serial
+int RTx::sendData(int pixels[], int pixelCount){
+  for (int i = 0; i < pixelCount; ++i) {
+    Serial.print(pixels[i]);
+    if (i == pixelCount - 1)
+      Serial.println(';'); // Send ';' when all numbers are sent
+    else
+      Serial.print(','); // Send ',' when a number is sent
+  }
 }
+
 
 String RTx::listen() {  
   Serial.println("started listening");
   for (int i=0; i<100; i++){
     if (Serial.available()) {
-    String input = Serial.readStringUntil(';'); 
+    delay(40); //wait for entire serial to arrive
+    String input = Serial.readStringUntil(';'); //stop at ;
     Serial.println(input);
       return input ;
       break;

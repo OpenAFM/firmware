@@ -39,7 +39,7 @@ void initialize() {Serial.print("got it;");
 
 void startWork() {
     ScanOneLine();
-    SendData(pixelData);
+    //(pixelData);
 }
 
 void MoveToPreviousPixel(){
@@ -78,15 +78,6 @@ void ScanOneLine() {
 	}
 }
 
-void SendData(int* array) {
-	for (int i = 0; i < pixelCount; ++i) {
-		Serial.print(array[i]);
-		if (i == pixelCount - 1)
-			Serial.print(';'); // Send ';' when all numbers are sent
-		else
-			Serial.print(','); // Send ',' when a number is sent
-	}
-}
 
 /* ================ */
 
