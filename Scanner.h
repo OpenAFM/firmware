@@ -27,12 +27,12 @@ class Scanner
  protected:
 
  public:
-	 Scanner(DACController, SignalSampler);
+	 Scanner(const DACController&, const SignalSampler&);
+	 ~Scanner();
 	 void reset();
 	 int scanLine(int[]);
-	 int start();
+	 int start(int);
 	 int stop();
 };
 
 #endif
-

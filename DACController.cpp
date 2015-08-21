@@ -1,22 +1,23 @@
 #include "DACController.h"
 
+#define ON HIGH
+#define OFF LOW
+
 const int CHANNEL_A = 0;
 const int CHANNEL_B = 1;
 const int CHANNEL_C = 2;
 const int CHANNEL_D = 3;
 
-#define ON HIGH
-#define OFF LOW
-
-DACController::DACController(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG, unsigned long serialRate) {
-	this->reset(stepSize, lineSize, dataPin, clockPin, loadPin, ldacPin, useRNG, serialRate);
+DACController::DACController(void) {
+	//TODO default values
+	Serial.println("DACController(void)");
 }
 
-void DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG, unsigned long serialRate) {
+DACController::DACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
 	this->stepSize = stepSize;
-	this->lineSize = lineSize;
+	this->lineSize = lineLength;
 
-	this->clkPin = clkPin;
+	this->clockPin = clockPin;
 	this->dataPin = dataPin;
 	this->loadPin = loadPin;
 	this->ldacPin = ldacPin;
@@ -28,17 +29,46 @@ void DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin,
 	this->currentZ = 0;
 
 	pinMode(this->dataPin, OUTPUT);
-	pinMode(this->clkPin, OUTPUT);
+	pinMode(this->clockPin, OUTPUT);
 	pinMode(this->loadPin, OUTPUT);
 	pinMode(this->ldacPin, OUTPUT);
 
-	Serial.begin(serialRate);
-
-	digitalWrite(this->loadPin, ON);
-	digitalWrite(this->ldacPin, OFF);
+	digitalWrite(this->loadPin, HIGH);
+	digitalWrite(this->ldacPin, LOW);
 
 	// command is clocked on rising edge
-	digitalWrite(this->clkPin, OFF);
+	digitalWrite(this->clockPin, LOW);
+
+	Serial.println("DACController(args)");
+}
+
+DACController::~DACController() {}
+
+void DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+	this->stepSize = stepSize;
+	this->lineSize = lineSize;
+
+	this->clockPin = clockPin;
+	this->dataPin = dataPin;
+	this->loadPin = loadPin;
+	this->ldacPin = ldacPin;
+	this->useRNG = useRNG;
+
+	this->currentStep = 0;
+	this->currentX = 0;
+	this->currentY = 0;
+	this->currentZ = 0;
+
+	pinMode(this->dataPin, OUTPUT);
+	pinMode(this->clockPin, OUTPUT);
+	pinMode(this->loadPin, OUTPUT);
+	pinMode(this->ldacPin, OUTPUT);
+
+	digitalWrite(this->loadPin, HIGH);
+	digitalWrite(this->ldacPin, LOW);
+
+	// command is clocked on rising edge
+	digitalWrite(this->clockPin, LOW);
 }
 
 
@@ -92,25 +122,26 @@ int DACController::go(int channel, int value) {
 
 	// load to output registers
 	loadDAC();
-	digitalWrite(dataPin, OFF);
 }
 
 
 int DACController::sendHighSignal() {
-	digitalWrite(clkPin, ON);
-	digitalWrite(dataPin, ON);
-	digitalWrite(clkPin, OFF);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(dataPin, HIGH);
+	digitalWrite(clockPin, LOW);
 }
 
 int DACController::sendLowSignal() {
-	digitalWrite(clkPin, ON);
-	digitalWrite(dataPin, OFF);
-	digitalWrite(clkPin, OFF);
+	digitalWrite(clockPin, HIGH);
+	digitalWrite(dataPin, LOW);
+	digitalWrite(clockPin, LOW);
 }
 
 int DACController::loadDAC() {
-	digitalWrite(loadPin, OFF);
-	digitalWrite(loadPin, ON);
+	digitalWrite(loadPin, LOW);
+	digitalWrite(loadPin, HIGH);
+
+	digitalWrite(dataPin, LOW);
 }
 
 int DACController::reset() {

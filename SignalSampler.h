@@ -21,8 +21,9 @@ class SignalSampler
 		int sampleSize;
 
 	public:
-		SignalSampler();
+		SignalSampler(void);
 		SignalSampler(int, int, int);
+		~SignalSampler();
 		int init(int, int, int);
 		float detectPixel();
 		int reset();
