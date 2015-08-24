@@ -8,7 +8,7 @@ import re
 
 figure=plt.figure()
 ser	=	serial.Serial('COM5',	9600)	#	Establish	the	connection	on	a	specific	port
-
+img=[]
 
 def update():
 	ser.write('RDY;')
@@ -38,9 +38,9 @@ def update():
 
 def animate(frame):
    plt.cla()
-   axes=plt.axes(xlim=(0,512), ylim=(0,2100))
    data=update()
-   axes.scatter(range(len(data)),data)
+   img.append(data)   
+   plt.imshow(img)
 
 anim = animation.FuncAnimation(figure, animate,
                                frames=50, interval=50)
