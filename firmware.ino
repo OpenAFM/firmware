@@ -52,8 +52,7 @@ void loop() {
   String cmd=phone.listen();
   Serial.println(cmd);
   delay(2000);
-  if (cmd=="RDY"){
-  phone.sendString("scanning!");scanLine();}
+  if (cmd=="RDY"){scanLine();}
   else if (cmd="ERROR"){;}
 
 }
