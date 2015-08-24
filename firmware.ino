@@ -3,10 +3,10 @@
 #include "RTx.h"
 
 /* Pin Definitions */
-#define _SDI 2
-#define _SCK 3
-#define LOAD 4
-#define LDAC 5
+#define _SDI 12
+#define _SCK 11
+#define LOAD 9
+#define LDAC 10
 
 #define STEPSIZE 1
 #define RNG 0
@@ -15,7 +15,7 @@
 #define SAMPLE_SIZE 5
 
 #define SAMPLER_PIN_A A0
-#define SAMPLER_PIN_B A0
+#define SAMPLER_PIN_B A1
 
 RTx phone = RTx();
 DACController ctrl = DACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
