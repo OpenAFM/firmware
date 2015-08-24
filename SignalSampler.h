@@ -25,7 +25,7 @@ class SignalSampler
 		SignalSampler(int, int, int);
 		~SignalSampler();
 		int init(int, int, int);
-		float detectPixel();
+		int detectPixel();
 		int reset();
 };
 
