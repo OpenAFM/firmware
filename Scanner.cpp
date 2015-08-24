@@ -67,7 +67,7 @@ int Scanner::start() {
 		scanLine();
 
 		// TODO send data
-	
+
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();
 

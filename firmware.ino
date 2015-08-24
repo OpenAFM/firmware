@@ -2,7 +2,7 @@
 #include "Scanner.h"
 #include "RTx.h"
 
-/* DAC PINs Definitions */
+/* Pin Definitions */
 #define _SDI 2
 #define _SCK 3
 #define LOAD 4
