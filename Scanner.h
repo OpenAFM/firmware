@@ -12,6 +12,7 @@
 #include "DACController.h"
 #include "SignalSampler.h"
 
+
 #define SCANNER_VERSION "0.0.1"
 
 class Scanner
@@ -23,15 +24,18 @@ class Scanner
 	 unsigned int linesScanned;
 	 unsigned long startTime;
 	 unsigned long endTime;
+	 int lineLength;
+	 int *pixels;
+	 bool scanning;
 
  protected:
 
  public:
-	 Scanner(const DACController&, const SignalSampler&);
+	 Scanner(const DACController&, const SignalSampler&, const int lineLength);
 	 ~Scanner();
 	 void reset();
-	 int scanLine(int[]);
-	 int start(int);
+	 int scanLine();
+	 int start();
 	 int stop();
 };
 

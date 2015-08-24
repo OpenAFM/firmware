@@ -24,6 +24,7 @@ void RTx::sendData(int pixels[], int pixelCount){
   else if (cmd="ERROR"){break;}
   }
   
+
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
     if (i == pixelCount - 1)

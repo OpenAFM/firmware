@@ -24,7 +24,7 @@ class RTx
 	RTx();
 	void reset();
 	void sendData(int[], int);
-  void sendString(String);
+    void sendString(String);
 	String listen();
 };
 

@@ -25,29 +25,31 @@ class DACController {
 		 int ldacPin;
 
 		 unsigned int currentStep;
-		 int currentX;
-		 int currentY;
-		 int currentZ;
 
-		 int sendHighSignal();
-		 int sendLowSignal();
+		 int setBitOn();
+		 int setBitOff();
 		 int loadDAC();
 		 int go(int, int);
 		 int setCoordinates();
 
 	 public:
-		 DACController();
+		DACController();
 		DACController(int, int, int, int, int, int, bool);
 		~DACController();
 
-		void reset(int, int, int, int, int, int, bool);
-		int increaseVoltage();
-		int decreaseVoltage();
+		int currentX;
+		int currentY;
+		int currentZ;
 
-		int eol();
+		unsigned int reset(int, int, int, int, int, int, bool);
+		unsigned int increaseVoltage();
+		unsigned int decreaseVoltage();
+
+		unsigned int eol();
 		int getLineSize();
-		int nextLine();
-		int reset();
+		unsigned int nextLine();
+		unsigned int reset();
+		int getVoltage(int);
 
 		void print();
 
