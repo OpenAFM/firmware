@@ -17,22 +17,18 @@
 #define SAMPLER_PIN_A 7
 #define SAMPLER_PIN_B 8
 
-int pixelCount=10;
-int lineCount=10;
-int pixelData[200];
-
 RTx phone = RTx();
 DACController ctrl = DACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
 SignalSampler sampler = SignalSampler(SAMPLER_PIN_A, SAMPLER_PIN_B, 5);
-Scanner scanner = Scanner(ctrl, sampler);
+Scanner scanner = Scanner(ctrl, sampler, phone, LINE_LENGTH);
 
 /* ================ */
-void initialize() {Serial.print("got it;");
+void initialize() {Serial.println("got it;");
 }
 
 
 void scanLine() {
-	  //scanner.scanLine();
+	  scanner.scanLine();
 		
 }
 /* ================ */
@@ -59,5 +55,4 @@ void loop() {
   if (cmd=="GO"){scanLine();}
   else if (cmd="ERROR"){;}
 
-	//ctrl.scanLine();
 }

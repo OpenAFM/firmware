@@ -11,6 +11,7 @@
 
 #include "DACController.h"
 #include "SignalSampler.h"
+#include "RTx.h"
 
 
 #define SCANNER_VERSION "0.0.1"
@@ -21,6 +22,7 @@ class Scanner
  private:
 	 DACController controller;
 	 SignalSampler sampler;
+   RTx phone;
 	 unsigned int linesScanned;
 	 unsigned long startTime;
 	 unsigned long endTime;
@@ -31,7 +33,7 @@ class Scanner
  protected:
 
  public:
-	 Scanner(const DACController&, const SignalSampler&, const int lineLength);
+	 Scanner(const DACController&, const SignalSampler&, const RTx&, const int lineLength);
 	 ~Scanner();
 	 void reset();
 	 int scanLine();

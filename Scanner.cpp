@@ -5,7 +5,7 @@
 #include "Scanner.h"
 #include "RTx.h"
 
-Scanner::Scanner(const DACController &controller, const SignalSampler &sampler, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler) {
+Scanner::Scanner(const DACController &controller, const SignalSampler &sampler, const RTx &phone, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler), phone(phone) {
 	this->startTime = 0;
 	this->endTime = 0;
 	this->scanning = false;
@@ -67,6 +67,7 @@ int Scanner::start() {
 		scanLine();
 
 		// TODO send data
+   phone.sendData(pixels, lineLength);
 
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();
