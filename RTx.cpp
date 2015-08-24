@@ -17,6 +17,13 @@ void RTx::reset() {
 }
 
 void RTx::sendData(int pixels[], int pixelCount){
+  
+  while (true){
+  String cmd=listen();
+  if (cmd=="RDY"){break;}
+  else if (cmd="ERROR"){break;}
+  }
+  
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
     if (i == pixelCount - 1)
@@ -32,18 +39,17 @@ void RTx::sendString(String message){
 }
 
 
-String RTx::listen() {  
-  Serial.println("started listening");
+String RTx::listen() {
+  String retVal = ""; 
   for (int i=0; i<100; i++){
     if (Serial.available()) {
     delay(40); //wait for entire serial to arrive
-    String input = Serial.readStringUntil(';'); //stop at ;
-    Serial.println(input);
-      return input ;
+    String returnVal = Serial.readStringUntil(';'); //stop at ;
+    Serial.println(returnVal);
       break;
   }
+  return retVal;
  delay(1);
 }
-Serial.println("stopped listening");
 }
 
