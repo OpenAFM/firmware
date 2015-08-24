@@ -54,8 +54,10 @@ void setup() {
 
 void loop() {
   phone.sendString("send listen");
-  String command=phone.listen();
+  String cmd=phone.listen();
   delay(200);
+  if (cmd=="GO"){scanLine();}
+  else if (cmd="ERROR"){;}
 
 	//ctrl.scanLine();
 }
