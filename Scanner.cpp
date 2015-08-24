@@ -3,14 +3,19 @@
 // Lego2Nano 
 
 #include "Scanner.h"
+#include "RTx.h"
 
-Scanner::Scanner(const DACController &controller, const SignalSampler &sampler) : controller(controller), sampler(sampler) {
+Scanner::Scanner(const DACController &controller, const SignalSampler &sampler, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler) {
 	this->startTime = 0;
 	this->endTime = 0;
-	Serial.print("Scanner(args)");
+	this->scanning = false;
+	this->lineLength = lineLength;
+	Serial.println("Scanner(args)");
 }
 
-Scanner::~Scanner() {}
+Scanner::~Scanner() {
+	delete[] pixels;
+}
 
 void Scanner::reset()
 {
@@ -19,45 +24,61 @@ void Scanner::reset()
 	startTime = 0;
 	endTime = 0;
 	linesScanned = 0;
+	scanning = false;
 }
 
 
-int Scanner::scanLine(int pixels[]) {
+int Scanner::scanLine() {
 	unsigned int x = 0;
-	for (x; x < controller.getLineSize(); x++) {
+
+	//trace
+	for (int i = 0; i < controller.getLineSize(); i++) {
 		pixels[x] = sampler.detectPixel();
 
-		// don't move beyond eol
-		if (x + 1 < controller.getLineSize())
+		x++;
+		if (i + 1 < controller.getLineSize())
 			controller.increaseVoltage();
 	}
 
-	// TODO send data
-
-	for (x; x < controller.getLineSize(); x++) {
+	//retrace
+	for (int i = 0; i < controller.getLineSize(); i++) {
 		pixels[x] = sampler.detectPixel();
 
-		// don't move beyond the BOL
-		if (x - 1 > 0)
+		x++;
+		if(i + 1 < controller.getLineSize())
 			controller.decreaseVoltage();
 	}
 
 	linesScanned++;
+
+	return 0;
 }
 
-int Scanner::start(int lineLength) {
+int Scanner::start() {
 
 	// get start time
 	startTime = millis();
-	int* pixels = 0;
-	pixels[lineLength * 2];
+	scanning = true;
 
-	scanLine(pixels);
+	// interates over y-axis calling ctrl.nextLine() 
+	for (int i = 0; i < lineLength; i++) {
 
+		// scans one line (trace & re-trace)
+		scanLine();
+
+		// TODO send data
+	
+		// next line on y-axis
+		unsigned int cl = controller.nextLine();
+
+		if (scanning == false)
+			break;
+	}
 }
 
 int Scanner::stop() {
 
 	// calculate lapsed time
 	endTime = millis() - startTime;
+	scanning = false;
 }

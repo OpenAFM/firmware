@@ -16,7 +16,7 @@ void RTx::reset() {
 	this->outputCount = 0;
 }
 
-int RTx::sendData(int pixels[], int pixelCount){
+int RTx::sendData(int pixels[], int pixelCount) {
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
     if (i == pixelCount - 1)
