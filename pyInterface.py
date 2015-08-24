@@ -3,6 +3,7 @@ import	serial
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from matplotlib import animation
 import re
 
@@ -40,7 +41,7 @@ def animate(frame):
    plt.cla()
    data=update()
    img.append(data)   
-   plt.imshow(img)
+   plt.imshow(img, cmap=cm.Greys_r)
 
 anim = animation.FuncAnimation(figure, animate,
                                frames=50, interval=50)

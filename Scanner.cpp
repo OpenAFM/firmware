@@ -67,7 +67,7 @@ int Scanner::start() {
 		scanLine();
 
 		// TODO send data
-   scanning=phone.sendData(pixels, lineLength);
+   scanning=phone.sendData(pixels, 2*lineLength);
 
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();

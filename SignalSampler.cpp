@@ -10,7 +10,7 @@ SignalSampler::SignalSampler(void) {
 
 SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
 	this->init(inputAPin, inputBPin, sampleSize);
-analogReference(EXTERNAL);
+//analogReference(EXTERNAL);
 Serial.println("SignalSampler(args);");
 }
 
