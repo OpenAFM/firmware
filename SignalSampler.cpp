@@ -37,7 +37,7 @@ int SignalSampler::detectPixel()
 		aSignalValue = analogRead(inputApin);
 		bSignalValue = analogRead(inputBpin);
 		temp = aSignalValue + bSignalValue;
-		// insert sorting the sum arry
+		// insert sorting the sum array
 		j = i-1;
 		while(j >= 0 && temp < sumSignalValue[j]){
 			sumSignalValue[j+1] = sumSignalValue[j]; 
