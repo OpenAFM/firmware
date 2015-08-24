@@ -7,3 +7,5 @@ Visual/ Micro
 *.v12*
 l2n_*
 *.bat
+firmware.ino
+l2n_firmware.ino
