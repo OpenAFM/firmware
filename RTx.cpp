@@ -21,7 +21,7 @@ void RTx::sendData(int pixels[], int pixelCount){
   while (true){
   cmd=listen();
   if (cmd=="RDY"){break;}
-  else if (cmd="ERROR"){break;}
+  else if (cmd=="ERROR"){break;}
   }
   
 
@@ -39,7 +39,7 @@ void RTx::sendString(String message){
   while (true){
   cmd=listen();
   if (cmd=="RDY"){break;}
-  else if (cmd="ERROR"){break;}
+  else if (cmd=="ERROR"){break;}
   }
   Serial.print(message);
   Serial.println(';'); // Send ';' when all numbers are sent

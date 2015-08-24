@@ -11,15 +11,15 @@
 #define STEPSIZE 1
 #define RNG 0
 #define BAUDRATE 9600
-#define RECVPin A7
-#define LINE_LENGTH 255
+#define LINE_LENGTH 256
+#define SAMPLE_SIZE 5
 
-#define SAMPLER_PIN_A 7
-#define SAMPLER_PIN_B 8
+#define SAMPLER_PIN_A A0
+#define SAMPLER_PIN_B A0
 
 RTx phone = RTx();
 DACController ctrl = DACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
-SignalSampler sampler = SignalSampler(SAMPLER_PIN_A, SAMPLER_PIN_B, 5);
+SignalSampler sampler = SignalSampler(SAMPLER_PIN_A, SAMPLER_PIN_B, SAMPLE_SIZE);
 Scanner scanner = Scanner(ctrl, sampler, phone, LINE_LENGTH);
 
 /* ================ */
@@ -28,7 +28,7 @@ void initialize() {Serial.println("got it;");
 
 
 void scanLine() {
-	  scanner.scanLine();
+	  scanner.start();
 		
 }
 /* ================ */
@@ -49,10 +49,11 @@ void setup() {
 }
 
 void loop() {
-  phone.sendString("send listen");
   String cmd=phone.listen();
-  delay(200);
-  if (cmd=="GO"){scanLine();}
+  Serial.println(cmd);
+  delay(2000);
+  if (cmd=="RDY"){
+  phone.sendString("scanning!");scanLine();}
   else if (cmd="ERROR"){;}
 
 }

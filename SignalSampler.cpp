@@ -10,7 +10,7 @@ SignalSampler::SignalSampler(void) {
 
 SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
 	this->init(inputAPin, inputBPin, sampleSize);
-analogReference(EXTERNAL);
+//analogReference(EXTERNAL);
 Serial.println("SignalSampler(args);");
 }
 
@@ -33,12 +33,12 @@ float SignalSampler::detectPixel()
 		// add the median
 		aSignalValue = analogRead(inputApin);
 		bSignalValue = analogRead(inputBpin);
-    cSignalValue+=aSignalValue+bSignalValue;    
+    cSignalValue=aSignalValue+bSignalValue;    
 	}
-  cSignalValue/=sampleSize;
+  //cSignalValue/=sampleSize;
  
 	
-	return cSignalValue;
+	return aSignalValue;
 }
 
 int SignalSampler::reset() {
