@@ -21,19 +21,34 @@ int SignalSampler::init(int inputAPin, int inputBPin, int sampleSize) {
 	this->sampleSize = sampleSize;
 }
 
-float SignalSampler::detectPixel()
+int SignalSampler::detectPixel()
 {
 	int aSignalValue = 0;
 	int bSignalValue = 0;
 
-	for (int i = 0; i < sampleSize; i++) {
-		// get the median of the samples
-		// add the median
+	int *sumSignalValue;
+	int j, temp;
+	int median = 0;
+	sumSignalValue = (int*)malloc(sizeof(int)*sampleSize);
+
+
+	for (int i = 0; i < sampleSize; i++){
+		// get aSignalValue, bSignalValue and add them
 		aSignalValue = analogRead(inputApin);
 		bSignalValue = analogRead(inputBpin);
+		temp = aSignalValue + bSignalValue;
+		// insert sorting the sum arry
+		j = i-1;
+		while(j >= 0 && temp < sumSignalValue[j]){
+			sumSignalValue[j+1] = sumSignalValue[j]; 
+			j--;
+		}
+		sumSignalValue[j+1] = temp;
 	}
-	
-	return 0;
+
+	median = sumSignalValue[sampleSize/2];
+	free(sumSignalValue);
+	return median;
 }
 
 int SignalSampler::reset() {
