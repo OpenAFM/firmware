@@ -1,33 +1,39 @@
 // Author A Michel
 // Date 20 08 15
-// Lego2Nano 
+// Lego2Nano 2015
 
 #include "Scanner.h"
 #include "RTx.h"
 
+// Constructor
 Scanner::Scanner(const DACController &controller, const SignalSampler &sampler, const RTx &phone, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler), phone(phone) {
 	this->startTime = 0;
 	this->endTime = 0;
 	this->scanning = false;
 	this->lineLength = lineLength;
-	Serial.println("Scanner(args)");
 }
 
+// Destructor
 Scanner::~Scanner() {
 	delete[] pixels;
 }
 
+// reset. Stop the scanning process and resets all parameters.
 void Scanner::reset()
 {
+	stop();
+	// TODO implement proper interruption of process.
+	delay(5000);
+
 	controller.reset();
 	sampler.reset();
 	startTime = 0;
 	endTime = 0;
 	linesScanned = 0;
-	scanning = false;
 }
 
-
+// Scans one line and stores data in the pixel array.
+// Does a trace and retrace. The retrace data will be in backward order.
 int Scanner::scanLine() {
 	unsigned int x = 0;
 
@@ -54,6 +60,7 @@ int Scanner::scanLine() {
 	return 0;
 }
 
+// Start the scanning process.
 int Scanner::start() {
 
 	// get start time
@@ -66,8 +73,7 @@ int Scanner::start() {
 		// scans one line (trace & re-trace)
 		scanLine();
 
-		// TODO send data
-   scanning=phone.sendData(pixels, 2*lineLength);
+		scanning = phone.sendData(pixels, 2 * lineLength);
 
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();
@@ -75,11 +81,19 @@ int Scanner::start() {
 		if (scanning == false)
 			break;
 	}
+	stop();
 }
 
+// stop the scanning process and resets the parameters.
 int Scanner::stop() {
 
 	// calculate lapsed time
 	endTime = millis() - startTime;
 	scanning = false;
+	reset();
+}
+
+// return the lapsed time
+unsigned long Scanner::getLapsedTime() {
+	return endTime;
 }

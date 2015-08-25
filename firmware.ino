@@ -36,8 +36,14 @@ void setup() {
 
 //This function keeps looping
 void loop() {
-  String cmd=phone.listen(); //wait for command  
-  if (cmd=="GO") scanner.start(); //start scanning
+  String cmd=phone.listen();
+  if (cmd=="GO") {
+	  scanner.start();
+  }
+  if (cmd == "setup")
+  {
+	  
+  }
   else if (cmd="ERROR"){;}
-
+  delay(2000);
 }

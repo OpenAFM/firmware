@@ -3,16 +3,19 @@
 #define ON HIGH
 #define OFF LOW
 
+// Channels available in chip.
 extern const int CHANNEL_A = 0;
 extern const int CHANNEL_B = 1;
 extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
+// default constructor
 DACController::DACController(void) {
 	//TODO default values
 	Serial.println("DACController(void)");
 }
 
+// constructor
 DACController::DACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
 	this->stepSize = stepSize;
 	this->lineSize = lineLength;
@@ -39,11 +42,12 @@ DACController::DACController(int stepSize, int lineLength, int dataPin, int cloc
 	// command is clocked on rising edge
 	digitalWrite(this->clockPin, OFF);
 
-	Serial.println("DACController(args)");
 }
 
+// destructor.
 DACController::~DACController() {}
 
+// reset parameters
 unsigned int DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
 	this->stepSize = stepSize;
 	this->lineSize = lineSize;
@@ -76,6 +80,7 @@ unsigned int DACController::reset(int stepSize, int lineSize, int dataPin, int c
 
 const byte mask = 128;
 
+// set voltage value for given channel
 int DACController::go(int channel, int value) {
 	
 	//  Set DAC Channel LMB (left most significant bit)
@@ -137,25 +142,27 @@ int DACController::go(int channel, int value) {
 	loadDAC();
 }
 
+// send high
 int DACController::setBitOn() {
 	digitalWrite(clockPin, ON);
 	digitalWrite(dataPin, ON);
 	digitalWrite(clockPin, OFF);
 }
-
+// send low
 int DACController::setBitOff() {
 	digitalWrite(clockPin, ON);
 	digitalWrite(dataPin, OFF);
 	digitalWrite(clockPin, OFF);
 }
 
+// load dac
 int DACController::loadDAC() {
 	digitalWrite(loadPin, OFF);
 	digitalWrite(loadPin, ON);
-
 	digitalWrite(dataPin, OFF);
 }
 
+// reset coordinates to 0,0
 unsigned int DACController::reset() {
 	currentStep = 0;
 	currentZ = 0;
@@ -165,6 +172,7 @@ unsigned int DACController::reset() {
 	return currentStep;
 }
 
+// move to beginning of next line.
 unsigned int DACController::nextLine() {
 	int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
 	currentStep += delta;
@@ -174,18 +182,23 @@ unsigned int DACController::nextLine() {
 	return currentStep;
 }
 
+// go to end of current line
 unsigned int DACController::eol() {
 	nextLine();
 	currentStep--;
 	setCoordinates();
+	go(CHANNEL_A, currentX);
+	go(CHANNEL_B, currentY);
 	return currentStep;
 }
 
+// set coordinates relative to currentStep
 int DACController::setCoordinates() {
 	currentX = currentStep % lineSize;
 	currentY = currentStep / lineSize;
 }
 
+// increase voltage
 unsigned int DACController::increaseVoltage() {
 
 	// step fwd
@@ -199,6 +212,7 @@ unsigned int DACController::increaseVoltage() {
 	return currentStep;
 }
 
+// decrease voltage
 unsigned int DACController::decreaseVoltage() {
 
 	// step back
@@ -211,10 +225,13 @@ unsigned int DACController::decreaseVoltage() {
 
 	return currentStep;
 }
+
+// return current line size.
 int DACController::getLineSize() {
 	return lineSize;
 }
 
+// return current voltage for given channel
 int DACController::getVoltage(int channel) {
 
 	switch (channel) {
@@ -231,12 +248,5 @@ int DACController::getVoltage(int channel) {
 	}
 }
 
-void DACController::print() {
-	Serial.print("Step: "); Serial.print(currentStep); Serial.print(" LineSize: "); Serial.print(lineSize);
-	Serial.print(" ["); Serial.print(currentX); Serial.print(", ");
-	Serial.print(currentY); Serial.print("]");
-	Serial.println();
-	Serial.flush();
-}
 
 

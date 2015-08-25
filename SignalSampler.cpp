@@ -1,6 +1,3 @@
-// SingnalSampler.cpp
-// Author Y_Vertex
-// 
 #include "SignalSampler.h"
 
 SignalSampler::SignalSampler(void) {
@@ -10,7 +7,7 @@ SignalSampler::SignalSampler(void) {
 
 SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
 	this->init(inputAPin, inputBPin, sampleSize);
-//analogReference(EXTERNAL);
+//analogReference(EXTERNAL); //this scales the input by the reference pin of the arduino
 Serial.println("SignalSampler(args);");
 }
 

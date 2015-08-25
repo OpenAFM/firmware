@@ -12,21 +12,24 @@ void RTx::reset() {
 
 int RTx::sendData(int pixels[], int pixelCount){
   String cmd;
-  while (true){ //listen until command arrives
-  cmd=listen();
-  if (cmd=="RDY" || cmd =="DONE"){break;}
+  while (true) {
+	cmd = listen();
+	if (cmd == "RDY" || cmd == "DONE"){break;}
   }
 
   //sending data
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
-    if (i == pixelCount - 1)
+    if (i == pixelCount - 1){
       Serial.print(';'); // Send ';' when all numbers are sent
-    else
+	} else
       Serial.print(','); // Send ',' when a number is sent
   }
+
   Serial.flush();
+
   if (cmd=="DONE") return 0;
+
   else return 1;
 }
 
