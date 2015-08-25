@@ -26,8 +26,9 @@ int RTx::sendData(int pixels[], int pixelCount){
   //sending data
   for (int i = 0; i < pixelCount; ++i) {
     Serial.print(pixels[i]);
-    if (i == pixelCount - 1)
-      Serial.println(';'); // Send ';' when all numbers are sent
+    if (i == pixelCount - 1){
+      Serial.print(';');
+      Serial.flush();}// Send ';' when all numbers are sent
     else
       Serial.print(','); // Send ',' when a number is sent
   }
@@ -54,7 +55,9 @@ String RTx::listen() {
     if (Serial.available()) {
     delay(40); //wait for entire serial to arrive
     retVal = Serial.readStringUntil(';'); //stop at ;
-    Serial.println(retVal);
+    Serial.print(retVal);
+    Serial.print(';');
+    Serial.flush();
       break;
   }
   return retVal;

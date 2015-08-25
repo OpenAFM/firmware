@@ -51,7 +51,7 @@ void setup() {
 void loop() {
   String cmd=phone.listen();
   delay(2000);
-  if (cmd=="RDY"){scanLine();}
+  if (cmd=="GO"){scanLine();}
   else if (cmd="ERROR"){;}
 
 }
