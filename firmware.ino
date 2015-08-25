@@ -51,7 +51,13 @@ void setup() {
 void loop() {
   String cmd=phone.listen();
   delay(2000);
-  if (cmd=="GO"){scanLine();}
+  if (cmd=="GO") {
+	  scanner.start();
+  }
+  if (cmd == "setup")
+  {
+	  
+  }
   else if (cmd="ERROR"){;}
 
 }
