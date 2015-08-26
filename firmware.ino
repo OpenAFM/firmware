@@ -38,7 +38,7 @@ void setup() {
 void loop() {
   String cmd=phone.listen();
   delay(40);
-  if (cmd=="GO") {
+  if (cmd=="RDY") {
 	  scanner.start();
   }
   if (cmd == "setup")

@@ -2,13 +2,13 @@
 
 SignalSampler::SignalSampler(void) {
 	//TODO default values
-	Serial.println("SignalSampler(void);");
+	//Serial.println("SignalSampler(void);");
 }
 
 SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
 	this->init(inputAPin, inputBPin, sampleSize);
 //analogReference(EXTERNAL); //this scales the input by the reference pin of the arduino
-Serial.println("SignalSampler(args);");
+//Serial.println("SignalSampler(args);");
 }
 
 SignalSampler::~SignalSampler() {}

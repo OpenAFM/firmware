@@ -12,7 +12,7 @@ extern const int CHANNEL_D = 3;
 // default constructor
 DACController::DACController(void) {
 	//TODO default values
-	Serial.println("DACController(void)");
+	//Serial.println("DACController(void)");
 }
 
 // constructor
