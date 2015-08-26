@@ -129,7 +129,7 @@ int DACController::go(int channel, int value) {
 		}
 	}
 	*/
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i <= 7; i++) {
 		if (value & mask) {
 			setBitOn();
 		} else {
@@ -208,7 +208,7 @@ unsigned int DACController::increaseVoltage() {
 	
 	go(CHANNEL_A, currentX);
 	go(CHANNEL_B, currentY);
-
+  
 	return currentStep;
 }
 

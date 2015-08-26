@@ -40,7 +40,6 @@ int Scanner::scanLine() {
 	//trace
 	for (int i = 0; i < controller.getLineSize(); i++) {
 		pixels[x] = sampler.detectPixel();
-
 		x++;
 		if (i + 1 < controller.getLineSize())
 			controller.increaseVoltage();
@@ -49,7 +48,6 @@ int Scanner::scanLine() {
 	//retrace
 	for (int i = 0; i < controller.getLineSize(); i++) {
 		pixels[x] = sampler.detectPixel();
-
 		x++;
 		if(i + 1 < controller.getLineSize())
 			controller.decreaseVoltage();
