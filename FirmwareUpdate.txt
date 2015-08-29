@@ -1,0 +1,45 @@
+FIRMWARE UPDATE:
+The firmware is the part of the AFM that sits between the software interface and the electronics that control the microscope.
+This means that we need to take care of two tasks: first, to listen to the interface and translate that into a signal that controls the scanning stage.
+And second, to measure the signal from the AFM and send it back to the interface.
+These tasks are accomplished using an Arduino, a microcontroller that we can program to read and write voltages.
+
+To do all these things at the right time and in the right order, we control the behaviour of the Arduino using C++ code we wrote these past two weeks.
+There are four distinct classes that handle all the problems that our microcontroller might encounter:
+- The RTx class, which handles reception and transmission of data between the Arduino and the Interface.
+- The DACController class, which controls the motion of the scanning stage.
+- The SignalSampler class, which is in charge of measuring the signal the electronics team has prepared for us.
+- And lastly the Scanner class, which controls the three other classes for complete scans.
+
+To control the stage, we need to to smoothly control the voltage output over a range of voltages.
+The problem is that our Ardunios can only send bits, so only 'high' or 'low' voltages and nothing in between. 
+To overcome this problem we need to use a 'Digital to Analog Converter' (DAC) (Link to Isabels post from last week).
+Microcontrollers can talk to DACs using the so called 'Serial Periphal Interface', which essentially just defines which bits we need to send for the DAC to understand what we want.
+The DAC we use takes one byte as an input, so we can define our output voltage to be one of 256 discrete levels.
+Our DACController takes care of all this and makes control of the position of the scanning stage a breeze.
+
+The SignalSampler can jump into action and acquire data once the DACController has moved the stage by a certain amount,
+The two analog outputs provided by the electronics team is sampled several times (default value is 5). 
+Each pair of values is added together to find the total focus error of the DVD head. 
+Under the right conditions, this corresponds to the distance between sample and DVD head.
+Lastly, the median of the samples is taken as the true measurement, to reduce sensitity to noise.
+
+The Scanner class coordinates the interplay between the other classes, to acquire an entire image.
+This is done by having the DAC increase the output by one step, sampling that point and repeating that process to scan an entire line.
+Afterwards, the scanner will decrease the voltage again, scanning the same line in reverse direction.
+After one linescan we need to send the data to the interface, because the memory on the arduino is not large enough to store more data.
+
+To send data, the RTx class starts listening for the 'ready' command from the interface.
+This way, we ensure that the interface is ready to receive more data and we are not scanning faster than they can receive and plot the data.
+After the data is sent, the Scanner will do another line scan and iterate until the entire image is sampled.
+
+This method was sucessful in creating our first image of the tracks of a DVD. (Show image)
+The image is 512 pixels wide, because the Scanner measures a 256 pixel wide image and then reverserses the direction and scans another 256 pixels.
+As expected, the right half of the image is roughly mirror symmetric to the left side. 
+This suggests that the features (grooves of the DVD surface) are a real feature and not just an artifact of imaging.
+
+There are two imaging artefacts that can be discerned:
+A drift due to temperature variations causes the stage to move between line scans which causes the ragged look of the DVD grooves.
+A more subtle artefact are the vertical lines that can be seen on the left handside of the left and right image.
+We believe that this is due to the rapid accelleration of the stage when changing direction, which causes a ringing motion.
+
