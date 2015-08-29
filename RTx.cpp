@@ -48,18 +48,18 @@ void RTx::sendString(String message){
 
 String RTx::listen() {
   String retVal = ""; 
-  for (int i=0; i<100; i++){
+  while (true){
     if (Serial.available()) {
-    delay(40); //wait for entire serial to arrive
-    retVal = Serial.readStringUntil(';'); //stop at ;
-    //return input value
-    Serial.print(retVal); 
-    Serial.print(';');
-    Serial.flush();
+      delay(40); //wait for entire serial to arrive
+      retVal = Serial.readStringUntil(';'); //stop at ;
+      //return input value
+      Serial.print(retVal); 
+      Serial.print(';');
+      Serial.flush();
       break;
   }
-  return retVal;
- delay(1);
+    delay(1);
 }
+return retVal;
 }
 
