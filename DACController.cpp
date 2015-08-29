@@ -9,12 +9,6 @@ extern const int CHANNEL_B = 1;
 extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
-// default constructor
-DACController::DACController(void) {
-	//TODO default values
-	//Serial.println("DACController(void)");
-}
-
 // constructor
 DACController::DACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
 	this->stepSize = stepSize;
@@ -42,6 +36,7 @@ DACController::DACController(int stepSize, int lineLength, int dataPin, int cloc
 	// command is clocked on rising edge
 	digitalWrite(this->clockPin, OFF);
 
+	invertChannels = false;
 }
 
 // destructor.
@@ -74,11 +69,14 @@ unsigned int DACController::reset(int stepSize, int lineSize, int dataPin, int c
 	// command is clocked on rising edge
 	digitalWrite(this->clockPin, OFF);
 
+	invertChannels = false;
+
 	return currentStep;
 }
 
 
 const byte mask = 128;
+
 
 // set voltage value for given channel
 int DACController::go(int channel, int value) {
@@ -196,6 +194,12 @@ unsigned int DACController::eol() {
 int DACController::setCoordinates() {
 	currentX = currentStep % lineSize;
 	currentY = currentStep / lineSize;
+
+	if (invertChannels) {
+		int temp = currentX;
+		currentX = currentY;
+		currentY = temp;
+	}
 }
 
 // increase voltage
@@ -248,5 +252,8 @@ int DACController::getVoltage(int channel) {
 	}
 }
 
+void DACController::invert() {
+	invertChannels = !invertChannels;
+}
 
 

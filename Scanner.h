@@ -57,6 +57,8 @@ private:
 	bool scanning;
 	// scans one line (trace and retrace) storing the data in the pixels array.
 	int scanLine();
+
+
 protected:
 
 public:
@@ -71,9 +73,17 @@ public:
 	int start();
 	// stops the scanning processs
 	int stop();
+  // starts sending continous stream of data
+  int stream();
+
+	// update a param value
+	void setParam(String param, String value);
 
 	// get lapsed time
 	unsigned long getLapsedTime();
+
+	//
+	void invertChannels();
 };
 
 #endif

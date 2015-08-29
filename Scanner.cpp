@@ -76,23 +76,24 @@ int Scanner::start() {
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();
 
-		if (scanning == false)
+		if (scanning == false) {
 			break;
+		}
 	}
 	stop();
 }
 
 int Scanner::stream() {
   startTime = millis();
-  int data;
+  int data[1];
   bool streaming = 1;
   while (true){
-   data = sampler.detectPixel(); 
+   data[0] = sampler.detectPixel(); 
    streaming = phone.sendData(data, 1);
    if (streaming == false)
      break;
   }
-  
+  stop();
 }
 
 // stop the scanning process and resets the parameters.
@@ -101,10 +102,25 @@ int Scanner::stop() {
 	// calculate lapsed time
 	endTime = millis() - startTime;
 	scanning = false;
-	reset();
 }
 
 // return the lapsed time
 unsigned long Scanner::getLapsedTime() {
 	return endTime;
+}
+
+
+extern String const PARAM_LINE_LENGTH = "LINELENGTH";
+
+void Scanner::setParam(String param, String value) {
+	stop();
+
+	if (PARAM_LINE_LENGTH == param) {
+		lineLength = atoi(value.c_str());
+	}
+
+}
+
+void Scanner::invertChannels() {
+	controller.invert();
 }
