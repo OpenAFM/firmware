@@ -52,6 +52,13 @@ void loop() {
 	  String param = phone.listen();
 	  String value = phone.listen();
   }
+  if (cmd == "STREAM")
+  {
+    scanner.stream();
+    Serial.print("Lapsed time: ");
+    unsigned long lapsedTime = scanner.getLapsedTime();
+    Serial.println(lapsedTime);
+  }
   else if (cmd="ERROR"){;}
   
 }

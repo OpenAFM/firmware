@@ -82,6 +82,19 @@ int Scanner::start() {
 	stop();
 }
 
+int Scanner::stream() {
+  startTime = millis();
+  int data;
+  bool streaming = 1;
+  while (true){
+   data = sampler.detectPixel(); 
+   streaming = phone.sendData(data, 1);
+   if (streaming == false)
+     break;
+  }
+  
+}
+
 // stop the scanning process and resets the parameters.
 int Scanner::stop() {
 
