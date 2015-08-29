@@ -19,7 +19,7 @@ int RTx::sendData(int pixels[], int pixelCount){
 
   //sending data
   for (int i = 0; i < pixelCount; ++i) {
-    Serial.print(pixels[i]);
+    Serial.print(((pixels[i])));
     if (i == pixelCount - 1){
       Serial.print(';'); // Send ';' when all numbers are sent
 	} else

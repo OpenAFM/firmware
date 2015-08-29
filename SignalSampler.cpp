@@ -30,7 +30,6 @@ int SignalSampler::detectPixel()
 
 
 	for (int i = 0; i < sampleSize; i++){
-		delay(1);
 		// get aSignalValue, bSignalValue and add them
 		aSignalValue = analogRead(inputApin);
 		bSignalValue = analogRead(inputBpin);

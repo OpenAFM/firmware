@@ -49,7 +49,7 @@ void loop() {
 
   delay(40);
 
-  if (cmd=="RDY") {
+  if (cmd=="GO") {
 	  scanner.start();
 	  Serial.print("Lapsed time: ");
 	  unsigned long lapsedTime = scanner.getLapsedTime();
