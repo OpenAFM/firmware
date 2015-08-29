@@ -135,7 +135,7 @@ int DACController::go(int channel, int value) {
 		}
 		value = value << 1;
 	}
-
+	delay(2);
 	// load to output registers
 	loadDAC();
 }
