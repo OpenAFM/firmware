@@ -54,7 +54,7 @@ String RTx::listen() {
     retVal = Serial.readStringUntil(';'); //stop at ;
     //return input value
     Serial.print(retVal); 
-    Serial.print(';');
+   // Serial.print(';');
     Serial.flush();
       break;
   }

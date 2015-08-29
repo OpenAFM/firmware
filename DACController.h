@@ -59,10 +59,10 @@ private:
 	// not used; intended to store height information.
 	int currentZ;
 
-public:
-	// constructor
-	DACController();
+	// scan 90-degree angle
+	bool invertChannels;
 
+public:
 	// constructor
 	DACController(int, int, int, int, int, int, bool);
 	
@@ -93,6 +93,8 @@ public:
 	// return current voltage for selected channel (A - x, B - y, C - z).
 	int getVoltage(int);
 
+	// invert channel A(X) & B(Y)
+	void invert();
 };
 
 #endif
