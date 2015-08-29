@@ -36,14 +36,21 @@ void setup() {
 
 //This function keeps looping
 void loop() {
-  String cmd=phone.listen();
+
+  String cmd = phone.listen();
+
   delay(40);
+
   if (cmd=="RDY") {
 	  scanner.start();
+	  Serial.print("Lapsed time: ");
+	  unsigned long lapsedTime = scanner.getLapsedTime();
+	  Serial.println(lapsedTime);
   }
   if (cmd == "setup")
   {
-	  
+	  String param = phone.listen();
+	  String value = phone.listen();
   }
   else if (cmd="ERROR"){;}
   
