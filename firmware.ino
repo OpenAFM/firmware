@@ -1,6 +1,8 @@
 
 #include "Scanner.h"
 #include "RTx.h"
+#include <Wire\Wire.h>
+#include <mcp4728\mcp4728.h>
 
 /* Pin Definitions */
 
