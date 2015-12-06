@@ -87,6 +87,9 @@ public:
 	// move to the first pixel of the new line.
 	unsigned int nextLine();
 
+	// move to the first pixel of the previous line.
+	unsigned int prevLine();
+
 	// reset to x & y coordinates to 0,0
 	unsigned int reset();
 

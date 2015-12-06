@@ -75,8 +75,12 @@ int Scanner::start() {
 
 		// next line on y-axis
 		unsigned int cl = controller.nextLine();
-
+                // Scan the 
 		if (scanning == false) {
+			for (int j =0; j < linesScanned - 1; j ++) {
+				controller.prevLine();
+				delay(100)
+				}
 			break;
 		}
 	}

@@ -1,4 +1,4 @@
-#include "DACController.h"
+s#include "DACController.h"
 
 #define ON HIGH
 #define OFF LOW
@@ -162,7 +162,7 @@ int DACController::loadDAC() {
 
 // reset coordinates to 0,0
 unsigned int DACController::reset() {
-	currentStep = 0;
+  	currentStep = 0;
 	currentZ = 0;
 	setCoordinates();
 	go(CHANNEL_A, currentX);
@@ -174,6 +174,16 @@ unsigned int DACController::reset() {
 unsigned int DACController::nextLine() {
 	int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
 	currentStep += delta;
+	setCoordinates();
+	go(CHANNEL_A, currentX);
+	go(CHANNEL_B, currentY);
+	return currentStep;
+}
+
+// move to beggining of previous line.
+unsigned int DACController::prevLine() {
+	int delta = (((currentStep / lineSize) - 1) * lineSize) - currentStep;
+	currentStep += delta
 	setCoordinates();
 	go(CHANNEL_A, currentX);
 	go(CHANNEL_B, currentY);
