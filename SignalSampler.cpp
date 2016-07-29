@@ -31,8 +31,10 @@ int SignalSampler::detectPixel()
 
 	for (int i = 0; i < sampleSize; i++){
 		// get aSignalValue, bSignalValue and add them
-		aSignalValue = analogRead(inputApin);
-		bSignalValue = analogRead(inputBpin);
+		//aSignalValue = analogRead(inputApin);
+		//bSignalValue = analogRead(inputBpin);
+   aSignalValue=random(0,1024);
+   bSignalValue=random(0,1024);
 		temp = aSignalValue + bSignalValue;
 		// insert sorting the sum array
 		j = i-1;
