@@ -50,7 +50,12 @@ String RTx::listen() {
   String retVal = ""; 
   while (true){
     if (Serial.available()) {
-      delay(40); //wait for entire serial to arrive
+       unsigned int t = micros();
+    while (micros() - t <= 100)
+  {
+    // Wait...
+  }      
+   //wait for entire serial to arrive
       retVal = Serial.readStringUntil(';'); //stop at ;
       //return input value
       Serial.print(retVal); 
@@ -58,7 +63,6 @@ String RTx::listen() {
       Serial.flush();
       break;
   }
-    delay(1);
 }
 return retVal;
 }

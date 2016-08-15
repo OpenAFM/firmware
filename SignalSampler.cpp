@@ -7,7 +7,7 @@ SignalSampler::SignalSampler(void) {
 
 SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
 	this->init(inputAPin, inputBPin, sampleSize);
-//analogReference(EXTERNAL); //this scales the input by the reference pin of the arduino
+//this scales the input by the reference pin of the arduino
 //Serial.println("SignalSampler(args);");
 }
 
@@ -31,11 +31,10 @@ int SignalSampler::detectPixel()
 
 	for (int i = 0; i < sampleSize; i++){
 		// get aSignalValue, bSignalValue and add them
-		//aSignalValue = analogRead(inputApin);
-		//bSignalValue = analogRead(inputBpin);
-   aSignalValue=random(0,1024);
-   bSignalValue=random(0,1024);
-		temp = aSignalValue + bSignalValue;
+		aSignalValue = analogRead(inputApin);
+		bSignalValue = analogRead(inputBpin);
+   
+		temp = aSignalValue+bSignalValue;
 		// insert sorting the sum array
 		j = i-1;
 		while(j >= 0 && temp < sumSignalValue[j]){
@@ -53,5 +52,6 @@ int SignalSampler::detectPixel()
 int SignalSampler::reset() {
 	return 0;
 }
+
 
 
