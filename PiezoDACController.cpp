@@ -11,13 +11,10 @@ extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
 // constructor
-PiezoDACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+PiezoDACController::PiezoDACController(int stepSize, int lineLength, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineLength;
 
-  this->clockPin = clockPin;
-  this->dataPin = dataPin;
-  this->loadPin = loadPin;
   this->ldacPin = ldacPin;
   this->useRNG = useRNG;
 
@@ -29,16 +26,9 @@ PiezoDACController::PiezoDACController(int stepSize, int lineLength, int dataPin
   // make the DAC
   DAC_AD5696 daq;
 
-  pinMode(this->dataPin, OUTPUT);
-  pinMode(this->clockPin, OUTPUT);
-  pinMode(this->loadPin, OUTPUT);
   pinMode(this->ldacPin, OUTPUT);
 
-  digitalWrite(this->loadPin, ON);
   digitalWrite(this->ldacPin, OFF);
-
-  // command is clocked on rising edge
-  digitalWrite(this->clockPin, OFF);
 
   invertChannels = false;
 }
@@ -47,13 +37,10 @@ PiezoDACController::PiezoDACController(int stepSize, int lineLength, int dataPin
 PiezoDACController::~PiezoDACController() {}
 
 // reset parameters
-unsigned int PiezoDACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineSize;
 
-  this->clockPin = clockPin;
-  this->dataPin = dataPin;
-  this->loadPin = loadPin;
   this->ldacPin = ldacPin;
   this->useRNG = useRNG;
 
@@ -62,16 +49,10 @@ unsigned int PiezoDACController::reset(int stepSize, int lineSize, int dataPin, 
   this->currentY = 0;
   this->currentZ = 0;
 
-  pinMode(this->dataPin, OUTPUT);
-  pinMode(this->clockPin, OUTPUT);
-  pinMode(this->loadPin, OUTPUT);
   pinMode(this->ldacPin, OUTPUT);
 
-  digitalWrite(this->loadPin, ON);
   digitalWrite(this->ldacPin, OFF);
 
-  // command is clocked on rising edge
-  digitalWrite(this->clockPin, OFF);
 
   invertChannels = false;
 
@@ -151,22 +132,21 @@ int PiezoDACController::go(int channel, int value) {
 
 // send high
 int PiezoDACController::setBitOn() {
-  digitalWrite(clockPin, ON);
-  digitalWrite(dataPin, ON);
-  digitalWrite(clockPin, OFF);
+	digitalWrite(clockPin, ON);
+	digitalWrite(dataPin, ON);
+	digitalWrite(clockPin, OFF);
 }
 // send low
 int PiezoDACController::setBitOff() {
-  digitalWrite(clockPin, ON);
-  digitalWrite(dataPin, OFF);
-  digitalWrite(clockPin, OFF);
+	digitalWrite(clockPin, ON);
+	digitalWrite(dataPin, OFF);
+	digitalWrite(clockPin, OFF);
 }
 
 // load dac
 int PiezoDACController::loadDAC() {
   digitalWrite(loadPin, OFF);
   digitalWrite(loadPin, ON);
-  digitalWrite(dataPin, OFF);
 }
 
 // reset coordinates to 0,0

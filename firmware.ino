@@ -1,3 +1,4 @@
+#include "ADDAC.h"
 #include "stdafx.h"
 #include "Scanner.h"
 #include "RTx.h"

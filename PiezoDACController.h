@@ -66,13 +66,13 @@ private:
 
 public:
 	// constructor
-	PiezoDACController(int, int, int, int, int, int, bool);
+	PiezoDACController(int, int, int, bool);
 	
 	// destructor
 	~PiezoDACController();
 	
 	// reset parameters
-	unsigned int reset(int, int, int, int, int, int, bool);
+	unsigned int reset(int, int, int, bool);
 
 	// increase voltage by one step (8 bit steps given by chip)
 	unsigned int increaseVoltage();
