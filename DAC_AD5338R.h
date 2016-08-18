@@ -36,8 +36,8 @@
 ********************************************************************************
 *   SVN Revision: 776
 *******************************************************************************/
-#ifndef __AD5696_H__
-#define __AD5696_H__
+#ifndef __DAC_AD5338R_H__
+#define __DAC_AD5338R_H__
 
 
 #if defined(ARDUINO) && ARDUINO >= 100
@@ -144,13 +144,12 @@
 /******************************************************************************/
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
-class PiezoDAC
+class DAC_AD5338R
 {
   public:
 
   /*! Initializes the device. */
-  unsigned char Init(unsigned char AD569X, 
-                          unsigned char a1LogicLevel,
+  unsigned char Init(unsigned char a1LogicLevel,
                           unsigned char a0LogicLevel);
                           
   /*! Resets the device(clears the outputs to either zero scale or midscale). */

@@ -39,7 +39,7 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include "AD5696_driver.h"
+#include "DAC_AD5696.h"
 /******************************************************************************/
 /************************ Variables Definitions *******************************/
 /******************************************************************************/
@@ -68,7 +68,7 @@ unsigned char addressPinA0         = 0;
  *          Example: 0x0 - I2C peripheral was not initialized.
  *                 0x1 - I2C peripheral is initialized.
 *******************************************************************************/
-unsigned char PiezoDAC::Init(unsigned char AD569X, 
+unsigned char DAC_AD5696::Init(unsigned char AD569X, 
                           unsigned char a1LogicLevel,
                           unsigned char a0LogicLevel)
 {
@@ -125,7 +125,7 @@ unsigned char PiezoDAC::Init(unsigned char AD569X,
  *
  * @return none.
 *******************************************************************************/
-void PiezoDAC::PowerMode(unsigned char channel, unsigned char pwrMode)
+void DAC_AD5696::PowerMode(unsigned char channel, unsigned char pwrMode)
 {    
     switch(channel)
     {
@@ -161,7 +161,7 @@ void PiezoDAC::PowerMode(unsigned char channel, unsigned char pwrMode)
  *
  * @return none.
 *******************************************************************************/
-void PiezoDAC::Reset(unsigned char resetOutput)
+void DAC_AD5696::Reset(unsigned char resetOutput)
 {
     if(resetOutput)
     {
@@ -181,7 +181,7 @@ void PiezoDAC::Reset(unsigned char resetOutput)
  *
  * @return none.
 *******************************************************************************/
-void PiezoDAC::SetInputRegister(unsigned long registerValue)
+void DAC_AD5696::SetInputRegister(unsigned long registerValue)
 {
     unsigned char registerWord[3] = {0, 0, 0};
     unsigned char* dataPointer    = (unsigned char*)&registerValue;
@@ -204,7 +204,7 @@ void PiezoDAC::SetInputRegister(unsigned long registerValue)
  *
  * @return none.
 *******************************************************************************/
-void PiezoDAC::InternalVoltageReference(unsigned char vRefMode)
+void DAC_AD5696::InternalVoltageReference(unsigned char vRefMode)
 {
     SetInputRegister(AD569X_CMD(AD569X_CMD_INT_REF_SETUP) | 
                             vRefMode);
@@ -227,7 +227,7 @@ void PiezoDAC::InternalVoltageReference(unsigned char vRefMode)
  *
  * @return none.
 *******************************************************************************/
-void PiezoDAC::WriteFunction(unsigned char writeCommand, 
+void DAC_AD5696::WriteFunction(unsigned char writeCommand, 
                           unsigned char channel, 
                           unsigned short data)
 {
@@ -252,7 +252,7 @@ void PiezoDAC::WriteFunction(unsigned char writeCommand,
  *
  * @return 12-bit value of the selected channel.
 *******************************************************************************/
-unsigned short PiezoDAC::ReadBack(unsigned char dacChannelAddr)
+unsigned short DAC_AD5696::ReadBack(unsigned char dacChannelAddr)
 {
     unsigned long channelValue = 0;
     unsigned char shiftValue   = 0;
@@ -291,7 +291,7 @@ unsigned short PiezoDAC::ReadBack(unsigned char dacChannelAddr)
  *
  * @return The actual value of the output voltage.
 *******************************************************************************/
-float PiezoDAC::SetVoltage(unsigned char channel, 
+float DAC_AD5696::SetVoltage(unsigned char channel, 
                         float outputVoltage, 
                         float vRef)
 {
@@ -324,7 +324,7 @@ float PiezoDAC::SetVoltage(unsigned char channel,
  * @return status - Number of written bytes.
 *******************************************************************************/
 
-unsigned char PiezoDAC::I2C_Write(unsigned char slaveAddress,
+unsigned char DAC_AD5696::I2C_Write(unsigned char slaveAddress,
                         unsigned char* dataBuffer,
                         unsigned char bytesNumber,
                         bool stopBit)
@@ -349,7 +349,7 @@ unsigned char PiezoDAC::I2C_Write(unsigned char slaveAddress,
  *
  * @return status - Number of read bytes.
 *******************************************************************************/
-unsigned char PiezoDAC::I2C_Read(unsigned char slaveAddress,
+unsigned char DAC_AD5696::I2C_Read(unsigned char slaveAddress,
                        unsigned char* dataBuffer,
                        unsigned char bytesNumber,
                        bool stopBit)
@@ -374,7 +374,7 @@ return bytesNumber;
  *                  Example: 1 - if initialization was successful;
  *                           0 - if initialization was unsuccessful.
 *******************************************************************************/
-unsigned char PiezoDAC::I2C_Init(unsigned long clockFreq)
+unsigned char DAC_AD5696::I2C_Init(unsigned long clockFreq)
 {
   //Wire.begin(); Will allocate 160 bytes of memory, signal sampler OR this should be initializing I2C, not twice.
   Wire.setClock(clockFreq);

@@ -1,3 +1,4 @@
+#include <Adafruit_ADS1015.h>
 #include "Scanner.h"
 #include "RTx.h"
 
@@ -53,7 +54,7 @@ void loop() {
       int CUSTOM_LINE_LENGTH=Serial.parseInt();
       int CUSTOM_SAMPLE_SIZE=Serial.parseInt();
      
-      ctrl =new DACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
+      ctrl =new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
       sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
       scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     

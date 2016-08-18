@@ -25,6 +25,9 @@ DACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int
   this->currentY = 0;
   this->currentZ = 0;
 
+  // make the DAC
+  DAC_AD5338R daq;
+
   pinMode(this->dataPin, OUTPUT);
   pinMode(this->clockPin, OUTPUT);
   pinMode(this->loadPin, OUTPUT);
