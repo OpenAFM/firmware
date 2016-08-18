@@ -6,7 +6,7 @@
 #include "RTx.h"
 
 // Constructor
-Scanner::Scanner(const DACController &controller, const SignalSampler &sampler, const RTx &phone, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler), phone(phone) {
+Scanner::Scanner(const PiezoDACController &controller, const SignalSampler &sampler, const RTx &phone, const int lineLength) : pixels(new int[lineLength * 2]), controller(controller), sampler(sampler), phone(phone) {
 	this->startTime = 0;
 	this->endTime = 0;
 	this->scanning = false;

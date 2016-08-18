@@ -184,15 +184,25 @@ private:
     
     /*! Writes data to a slave device. */
     unsigned char I2C_Write(unsigned char slaveAddress,
-                            unsigned char* dataBuffer,
+                            const char* dataBuffer,
                             unsigned char bytesNumber,
-                            unsigned char stopBit);
+                            bool stopBit);
     
     /*! Reads data from a slave device. */
     unsigned char I2C_Read(unsigned char slaveAddress,
                            unsigned char* dataBuffer,
                            unsigned char bytesNumber,
-                           unsigned char stopBit);
+		bool stopBit);
+
+
+
+	/******************************************************************************/
+	/************************ Variables Definitions *******************************/
+	/******************************************************************************/
+	unsigned char currentPowerRegValue = 0;
+	unsigned char deviceBitsNumber = 0;
+	unsigned char addressPinA1 = 0;
+	unsigned char addressPinA0 = 0;
 
 };
 

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SignalSampler.h"
 
 SignalSampler::SignalSampler(void) {
@@ -5,7 +6,7 @@ SignalSampler::SignalSampler(void) {
 	//Serial.println("SignalSampler(void);");
 }
 
-SignalSampler::SignalSampler(Adafruit_ADS1015& adc, int sampleSize):adc(adc) {
+SignalSampler::SignalSampler(Adafruit_ADS1015& adc, int sampleSize) : adc(adc) {
 	this->init(sampleSize);
 //this scales the input by the reference pin of the arduino
 //Serial.println("SignalSampler(args);");

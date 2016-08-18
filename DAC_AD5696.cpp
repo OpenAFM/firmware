@@ -40,13 +40,7 @@
 /***************************** Include Files **********************************/
 /******************************************************************************/
 #include "DAC_AD5696.h"
-/******************************************************************************/
-/************************ Variables Definitions *******************************/
-/******************************************************************************/
-unsigned char currentPowerRegValue = 0; 
-unsigned char deviceBitsNumber     = 0;
-unsigned char addressPinA1         = 0;
-unsigned char addressPinA0         = 0;
+
 
 /******************************************************************************/
 /************************ Functions Definitions *******************************/
@@ -146,7 +140,7 @@ void DAC_AD5696::PowerMode(unsigned char channel, unsigned char pwrMode)
             currentPowerRegValue |= AD569X_PWR_PDD(pwrMode);
             break;
     }
-    AD569X_SetInputRegister(AD569X_CMD(AD569X_CMD_POWERMODE) | 
+    SetInputRegister(AD569X_CMD(AD569X_CMD_POWERMODE) | 
                              currentPowerRegValue);
 }
 
@@ -171,7 +165,7 @@ void DAC_AD5696::Reset(unsigned char resetOutput)
     {
         AD569X_RSTSEL_LOW;
     }
-    AD569X_SetInputRegister(AD569X_CMD(AD569X_CMD_SOFT_RESET));
+    SetInputRegister(AD569X_CMD(AD569X_CMD_SOFT_RESET));
 }
 
 /***************************************************************************//**
@@ -183,16 +177,18 @@ void DAC_AD5696::Reset(unsigned char resetOutput)
 *******************************************************************************/
 void DAC_AD5696::SetInputRegister(unsigned long registerValue)
 {
-    unsigned char registerWord[3] = {0, 0, 0};
-    unsigned char* dataPointer    = (unsigned char*)&registerValue;
+	unsigned char registerWord[3] = { 0, 0, 0 };
+	unsigned char* dataPointer = (unsigned char*)&registerValue;
 
-    registerWord[0] = dataPointer[2];
-    registerWord[1] = dataPointer[1];
-    registerWord[2] = dataPointer[0];
-    I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-              registerWord,
-              3, 
-              1);
+	registerWord[0] = dataPointer[2];
+	registerWord[1] = dataPointer[1];
+	registerWord[2] = dataPointer[0];
+
+	const char outbuffer[3] = { dataPointer[2], dataPointer[1], dataPointer[0] };
+	I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
+		outbuffer,
+		3,
+		1);
 }
 
 /***************************************************************************//**
@@ -235,7 +231,7 @@ void DAC_AD5696::WriteFunction(unsigned char writeCommand,
     
     /* Different types of devices have different data bits positions. */
     shiftValue = 16 - deviceBitsNumber;
-    AD569X_SetInputRegister(AD569X_CMD(writeCommand) |
+    SetInputRegister(AD569X_CMD(writeCommand) |
                             AD569X_ADDR(channel) | 
                             ((long)AD569X_DATA_BITS(data) << shiftValue));
 }
@@ -254,26 +250,29 @@ void DAC_AD5696::WriteFunction(unsigned char writeCommand,
 *******************************************************************************/
 unsigned short DAC_AD5696::ReadBack(unsigned char dacChannelAddr)
 {
-    unsigned long channelValue = 0;
-    unsigned char shiftValue   = 0;
-    unsigned char buffer[2]    = {0, 0};
-    
-    /* Different types of devices have different data bits positions. */
-    shiftValue = 16 - deviceBitsNumber;
-    buffer[0] = dacChannelAddr;
-    I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-              buffer,
-              1,
-              0);
-    I2C_Read(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-             buffer,
-             2,
-             1);
-    
-    channelValue = ((long)buffer[0] << 8) | buffer[1];
-    channelValue >>= shiftValue;
-    
-    return channelValue;
+	unsigned long channelValue = 0;
+	unsigned char shiftValue = 0;
+	//unsigned char buffer[2]    = {0, 0};
+
+	/* Different types of devices have different data bits positions. */
+	shiftValue = 16 - deviceBitsNumber;
+	//buffer[0] = dacChannelAddr;
+	const char outbuffer[2] = { dacChannelAddr , 0 };
+	I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
+		outbuffer,
+		1,
+		0);
+
+	unsigned char inbuffer[2] = { 0, 0 };
+	I2C_Read(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
+		inbuffer,
+		2,
+		1);
+
+	channelValue = ((long)inbuffer[0] << 8) | inbuffer[1];
+	channelValue >>= shiftValue;
+
+	return channelValue;
 }
 
 /***************************************************************************//**
@@ -305,7 +304,7 @@ float DAC_AD5696::SetVoltage(unsigned char channel,
     vRef *= (AD569X_GAIN_STATE != 0) ? 2 : 1;
     binaryValue = (unsigned short)(outputVoltage * (1ul << deviceBitsNumber) / 
                                   vRef);
-    AD569X_WriteFunction(AD569X_CMD_WR_UPDT_DAC_N, channel, binaryValue);
+    WriteFunction(AD569X_CMD_WR_UPDT_DAC_N, channel, binaryValue);
     actualVoltage = (float)(vRef * binaryValue) / (1ul << deviceBitsNumber);
     
     return actualVoltage;
@@ -325,7 +324,7 @@ float DAC_AD5696::SetVoltage(unsigned char channel,
 *******************************************************************************/
 
 unsigned char DAC_AD5696::I2C_Write(unsigned char slaveAddress,
-                        unsigned char* dataBuffer,
+                        const char* dataBuffer,
                         unsigned char bytesNumber,
                         bool stopBit)
 {

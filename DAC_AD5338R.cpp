@@ -40,13 +40,6 @@
 /***************************** Include Files **********************************/
 /******************************************************************************/
 #include "DAC_AD5338R.h"
-/******************************************************************************/
-/************************ Variables Definitions *******************************/
-/******************************************************************************/
-unsigned char currentPowerRegValue = 0; 
-unsigned char deviceBitsNumber     = 0;
-unsigned char addressPinA1         = 0;
-unsigned char addressPinA0         = 0;
 
 /******************************************************************************/
 /************************ Functions Definitions *******************************/
@@ -171,8 +164,10 @@ void DAC_AD5338R::SetInputRegister(unsigned long registerValue)
     registerWord[0] = dataPointer[2];
     registerWord[1] = dataPointer[1];
     registerWord[2] = dataPointer[0];
+
+	const char outbuffer[3] = { dataPointer[2], dataPointer[1], dataPointer[0] };
     I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-              registerWord,
+			  outbuffer,
               3, 
               1);
 }
@@ -238,21 +233,24 @@ unsigned short DAC_AD5338R::ReadBack(unsigned char dacChannelAddr)
 {
     unsigned long channelValue = 0;
     unsigned char shiftValue   = 0;
-    unsigned char buffer[2]    = {0, 0};
+    //unsigned char buffer[2]    = {0, 0};
     
     /* Different types of devices have different data bits positions. */
     shiftValue = 16 - deviceBitsNumber;
-    buffer[0] = dacChannelAddr;
+    //buffer[0] = dacChannelAddr;
+	const char outbuffer[2] = { dacChannelAddr , 0 };
     I2C_Write(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-              buffer,
+			outbuffer,
               1,
               0);
+
+	unsigned char inbuffer[2] = { 0, 0 };
     I2C_Read(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0,
-             buffer,
+			inbuffer,
              2,
              1);
     
-    channelValue = ((long)buffer[0] << 8) | buffer[1];
+    channelValue = ((long)inbuffer[0] << 8) | inbuffer[1];
     channelValue >>= shiftValue;
     
     return channelValue;
@@ -307,7 +305,7 @@ float DAC_AD5338R::SetVoltage(unsigned char channel,
 *******************************************************************************/
 
 unsigned char DAC_AD5338R::I2C_Write(unsigned char slaveAddress,
-                        unsigned char* dataBuffer,
+                        const char* dataBuffer,
                         unsigned char bytesNumber,
                         bool stopBit)
 {

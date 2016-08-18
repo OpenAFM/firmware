@@ -1,4 +1,5 @@
 #include "PiezoDACController.h"
+#include "DAC_AD5696.h"
 
 #define ON HIGH
 #define OFF LOW
@@ -10,7 +11,7 @@ extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
 // constructor
-DACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+PiezoDACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineLength;
 
@@ -26,7 +27,7 @@ DACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int
   this->currentZ = 0;
 
   // make the DAC
-  DAC_AD5338R daq;
+  DAC_AD5696 daq;
 
   pinMode(this->dataPin, OUTPUT);
   pinMode(this->clockPin, OUTPUT);
