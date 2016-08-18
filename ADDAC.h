@@ -22,15 +22,16 @@ class ADDAC
 
 private:
 	static bool _setup;
-	static int ldacPin;
+	static uint8_t ldacPin;
 	static ADDAC_Static_Constructor scon;
 
 public:
 
 	// take the LDAC pin low, then high, to trigger DAQ register updates everywhere
 	static void LoadDAC();
+	static void SetLDac(bool state);
 	ADDAC();
-	static void Setup(int ldacPin);
+	static void Setup(uint8_t ldacPin);
 };
 
 #endif

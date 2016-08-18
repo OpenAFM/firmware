@@ -7,6 +7,9 @@
 #define ON HIGH
 #define OFF LOW
 
+bool ADDAC::_setup;
+uint8_t ADDAC::ldacPin;
+
 ADDAC_Static_Constructor::ADDAC_Static_Constructor()
 {
 	ADDAC::ldacPin = 0;
@@ -19,8 +22,13 @@ void ADDAC::LoadDAC()
 	digitalWrite(ldacPin, ON);
 }
 
+void ADDAC::SetLDac(bool state)
+{
+	digitalWrite(ldacPin, state ? ON : OFF);
+}
 
-void ADDAC::Setup(int ldacPin)
+
+void ADDAC::Setup(uint8_t ldacPin)
 {
 	// only set up once?
 	if (!_setup)

@@ -1,4 +1,3 @@
-#include "ADDAC.h"
 #include "stdafx.h"
 #include "Scanner.h"
 #include "RTx.h"
@@ -24,7 +23,7 @@
 /* Setup */
 Adafruit_ADS1015 adc;
 RTx* phone=new RTx();
-PiezoDACController* ctrl=new PiezoDACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
+PiezoDACController* ctrl=new PiezoDACController(STEPSIZE, LINE_LENGTH, LDAC, RNG);
 SignalSampler* sampler=new SignalSampler(adc, SAMPLE_SIZE);
 Scanner* scanner=new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 
@@ -55,7 +54,7 @@ void loop() {
       int CUSTOM_LINE_LENGTH=Serial.parseInt();
       int CUSTOM_SAMPLE_SIZE=Serial.parseInt();
      
-      ctrl =new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
+      ctrl =new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
       sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
       scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     
