@@ -1,4 +1,4 @@
-#include <Adafruit_ADS1015.h>
+#include "Adafruit_ADS1015.h"
 
 // DataRecv.h
 // Author Y_Vertex

@@ -5,8 +5,8 @@
 // Date 25/08/15
 // lego2nano 2015
 
-#ifndef _DACCONTROLLER_h
-#define _DACCONTROLLER_h
+#ifndef _PIEZODACCONTROLLER_h
+#define _PIEZODACCONTROLLER_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
@@ -17,7 +17,7 @@
 #define DAC_TLC_5620_CONTROLLER "0.0.1"
 
 // Defines a digital to analog controller for TLC5620CN
-class DACController {
+class PiezoDACController {
 
 private:
 	// Number of increments per pixel
@@ -66,10 +66,10 @@ private:
 
 public:
 	// constructor
-	DACController(int, int, int, int, int, int, bool);
+	PiezoDACController(int, int, int, int, int, int, bool);
 	
 	// destructor
-	~DACController();
+	~PiezoDACController();
 	
 	// reset parameters
 	unsigned int reset(int, int, int, int, int, int, bool);

@@ -21,7 +21,7 @@ line count for information purposes.
 #include "WProgram.h"
 #endif
 
-#include "DACController.h"
+#include "PiezoDACController.h"
 #include "SignalSampler.h"
 #include "RTx.h"
 

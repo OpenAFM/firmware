@@ -1,4 +1,4 @@
-#include "DACController.h"
+#include "PiezoDACController.h"
 
 #define ON HIGH
 #define OFF LOW
@@ -10,7 +10,7 @@ extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
 // constructor
-DACController::DACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+DACController::PiezoDACController(int stepSize, int lineLength, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineLength;
 
@@ -40,10 +40,10 @@ DACController::DACController(int stepSize, int lineLength, int dataPin, int cloc
 }
 
 // destructor.
-DACController::~DACController() {}
+PiezoDACController::~PiezoDACController() {}
 
 // reset parameters
-unsigned int DACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
+unsigned int PiezoDACController::reset(int stepSize, int lineSize, int dataPin, int clockPin, int loadPin, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineSize;
 
@@ -79,7 +79,7 @@ const byte mask = 128;
 
 
 // set voltage value for given channel
-int DACController::go(int channel, int value) {
+int PiezoDACController::go(int channel, int value) {
   
   //  Set DAC Channel LMB (left most significant bit)
   // 0 0 = A  X
@@ -146,27 +146,27 @@ int DACController::go(int channel, int value) {
 }
 
 // send high
-int DACController::setBitOn() {
+int PiezoDACController::setBitOn() {
   digitalWrite(clockPin, ON);
   digitalWrite(dataPin, ON);
   digitalWrite(clockPin, OFF);
 }
 // send low
-int DACController::setBitOff() {
+int PiezoDACController::setBitOff() {
   digitalWrite(clockPin, ON);
   digitalWrite(dataPin, OFF);
   digitalWrite(clockPin, OFF);
 }
 
 // load dac
-int DACController::loadDAC() {
+int PiezoDACController::loadDAC() {
   digitalWrite(loadPin, OFF);
   digitalWrite(loadPin, ON);
   digitalWrite(dataPin, OFF);
 }
 
 // reset coordinates to 0,0
-unsigned int DACController::reset() {
+unsigned int PiezoDACController::reset() {
   currentStep = 0;
   currentZ = 0;
   setCoordinates();
@@ -176,7 +176,7 @@ unsigned int DACController::reset() {
 }
 
 // move to beginning of next line.
-unsigned int DACController::nextLine() {
+unsigned int PiezoDACController::nextLine() {
   int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
   currentStep += delta;
   setCoordinates();
@@ -186,7 +186,7 @@ unsigned int DACController::nextLine() {
 }
 
 // go to end of current line
-unsigned int DACController::eol() {
+unsigned int PiezoDACController::eol() {
   nextLine();
   currentStep--;
   setCoordinates();
@@ -196,7 +196,7 @@ unsigned int DACController::eol() {
 }
 
 // set coordinates relative to currentStep
-int DACController::setCoordinates() {
+int PiezoDACController::setCoordinates() {
   currentX = currentStep % lineSize;
   currentY = currentStep / lineSize;
 
@@ -208,7 +208,7 @@ int DACController::setCoordinates() {
 }
 
 // increase voltage
-unsigned int DACController::increaseVoltage() {
+unsigned int PiezoDACController::increaseVoltage() {
 
   // step fwd
   currentStep += stepSize;
@@ -222,7 +222,7 @@ unsigned int DACController::increaseVoltage() {
 }
 
 // decrease voltage
-unsigned int DACController::decreaseVoltage() {
+unsigned int PiezoDACController::decreaseVoltage() {
 
   // step back
   currentStep -= stepSize;
@@ -236,12 +236,12 @@ unsigned int DACController::decreaseVoltage() {
 }
 
 // return current line size.
-int DACController::getLineSize() {
+int PiezoDACController::getLineSize() {
   return lineSize;
 }
 
 // return current voltage for given channel
-int DACController::getVoltage(int channel) {
+int PiezoDACController::getVoltage(int channel) {
 
   switch (channel) {
 
@@ -257,7 +257,7 @@ int DACController::getVoltage(int channel) {
   }
 }
 
-void DACController::invert() {
+void PiezoDACController::invert() {
   invertChannels = !invertChannels;
 }
 

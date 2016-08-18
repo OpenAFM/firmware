@@ -22,7 +22,7 @@
 /* Setup */
 Adafruit_ADS1015 adc;
 RTx* phone=new RTx();
-DACController* ctrl=new DACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
+PiezoDACController* ctrl=new PiezoDACController(STEPSIZE, LINE_LENGTH, _SDI, _SCK, LOAD, LDAC, RNG);
 SignalSampler* sampler=new SignalSampler(adc, SAMPLE_SIZE);
 Scanner* scanner=new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 
