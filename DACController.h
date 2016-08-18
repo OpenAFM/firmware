@@ -1,3 +1,5 @@
+#include <Wire.h>
+
 // DACWriter.h
 // Author A Michel
 // Date 25/08/15

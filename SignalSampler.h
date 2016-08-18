@@ -1,3 +1,5 @@
+#include <Adafruit_ADS1015.h>
+
 // DataRecv.h
 // Author Y_Vertex
 
@@ -10,6 +12,7 @@
 	#include "WProgram.h"
 #endif
 
+
 #define SIGNAL_SAMPLER "0.0.1"
 
 class SignalSampler
@@ -17,14 +20,14 @@ class SignalSampler
 	protected:
 
 	private: 
-		int inputApin, inputBpin;
+    Adafruit_ADS1015 adc;
 		int sampleSize;
 
 	public:
 		SignalSampler(void);
-		SignalSampler(int, int, int);
+		SignalSampler(Adafruit_ADS1015&, int);
 		~SignalSampler();
-		int init(int, int, int);
+		int init(int);
 		int detectPixel();
 		int reset();
 };
