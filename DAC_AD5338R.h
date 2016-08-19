@@ -179,21 +179,6 @@ class DAC_AD5338R : public ADDAC
                           float vRef);
                           
 private:
-    /*! Initializes the I2C communication peripheral. */
-    unsigned char I2C_Init(unsigned long clockFreq);
-    
-    /*! Writes data to a slave device. */
-    unsigned char I2C_Write(unsigned char slaveAddress,
-                            const char* dataBuffer,
-                            unsigned char bytesNumber,
-                            bool stopBit);
-    
-    /*! Reads data from a slave device. */
-    unsigned char I2C_Read(unsigned char slaveAddress,
-                           unsigned char* dataBuffer,
-                           unsigned char bytesNumber,
-                           bool stopBit);
-
 
 
 	/******************************************************************************/

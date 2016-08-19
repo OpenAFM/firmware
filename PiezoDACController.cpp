@@ -66,87 +66,69 @@ const byte mask = 128;
 // set voltage value for given channel
 int PiezoDACController::go(int channel, int value) {
   
-  //  Set DAC Channel LMB (left most significant bit)
-  // 0 0 = A  X
-  // 0 1 = B  Y
-  // 1 0 = C  Z
-  // 1 1 = D  -
-  
-  switch (channel)
-  {
-    case CHANNEL_A:
-      setBitOff();
-      setBitOff();
-      break;
+  ////  Set DAC Channel LMB (left most significant bit)
+  //// 0 0 = A  X
+  //// 0 1 = B  Y
+  //// 1 0 = C  Z
+  //// 1 1 = D  -
+  //
 
-    case CHANNEL_B:
-      setBitOff();
-      setBitOn();
-      break;
+  //switch (channel)
+  //{
+  //  case CHANNEL_A:
+  //    setBitOff();
+  //    setBitOff();
+  //    break;
 
-    case CHANNEL_C:
-      setBitOff();
-      setBitOn();
-      break;
+  //  case CHANNEL_B:
+  //    setBitOff();
+  //    setBitOn();
+  //    break;
 
-    case CHANNEL_D:
-      setBitOn();
-      setBitOff();
-      break;
-  }
+  //  case CHANNEL_C:
+  //    setBitOff();
+  //    setBitOn();
+  //    break;
 
-  // 1x gain (0) or 2x (1)
-  useRNG ? setBitOn() : setBitOff();
+  //  case CHANNEL_D:
+  //    setBitOn();
+  //    setBitOff();
+  //    break;
+  //}
 
-  /*
-  for (int i = 7; i >= 0; i--)
-  {
-    // shifting bits to the right.
-    int k = value >> i;
+  //// 1x gain (0) or 2x (1)
+  //useRNG ? setBitOn() : setBitOff();
 
-    // true if k (LMS) is 1
-    if (k & 1) {
-      sendHighSignal();
-    } else {
-      sendLowSignal();
-    }
-  }
-  */
-  for (int i = 0; i <= 7; i++) {
-    if (value & mask) {
-      setBitOn();
-    } else {
-      setBitOff();
-    }
-    value = value << 1;
-  }
-   unsigned int t = micros();
-    while (micros() - t <= 10)
-  {
-    // Wait...
-  }      
-  
-    // load to output registers
-  loadDAC();
-}
+  ///*
+  //for (int i = 7; i >= 0; i--)
+  //{
+  //  // shifting bits to the right.
+  //  int k = value >> i;
 
-// send high
-int PiezoDACController::setBitOn() {
-	digitalWrite(clockPin, ON);
-	digitalWrite(dataPin, ON);
-	digitalWrite(clockPin, OFF);
-}
-// send low
-int PiezoDACController::setBitOff() {
-	digitalWrite(clockPin, ON);
-	digitalWrite(dataPin, OFF);
-	digitalWrite(clockPin, OFF);
-}
-
-// load dac
-int PiezoDACController::loadDAC() {
-  digitalWrite(loadPin, OFF);
-  digitalWrite(loadPin, ON);
+  //  // true if k (LMS) is 1
+  //  if (k & 1) {
+  //    sendHighSignal();
+  //  } else {
+  //    sendLowSignal();
+  //  }
+  //}
+  //*/
+  //for (int i = 0; i <= 7; i++) {
+  //  if (value & mask) {
+  //    setBitOn();
+  //  } else {
+  //    setBitOff();
+  //  }
+  //  value = value << 1;
+  //}
+  // unsigned int t = micros();
+  //  while (micros() - t <= 10)
+  //{
+  //  // Wait...
+  //}      
+  //
+  //  // load to output registers
+  //loadDAC();
 }
 
 // reset coordinates to 0,0

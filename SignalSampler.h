@@ -20,7 +20,7 @@ class SignalSampler
 	protected:
 
 	private: 
-    Adafruit_ADS1015 adc;
+		Adafruit_ADS1015 adc;
 		int sampleSize;
 
 	public:

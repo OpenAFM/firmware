@@ -32,6 +32,21 @@ public:
 	static void SetLDac(bool state);
 	ADDAC();
 	static void Setup(uint8_t ldacPin);
+
+	/*! Initializes the I2C communication peripheral. */
+	static unsigned char I2C_Init(unsigned long clockFreq);
+
+	/*! Writes data to a slave device. */
+	static unsigned char I2C_Write(unsigned char slaveAddress,
+		const char* dataBuffer,
+		unsigned char bytesNumber,
+		bool stopBit);
+
+	/*! Reads data from a slave device. */
+	static unsigned char I2C_Read(unsigned char slaveAddress,
+		unsigned char* dataBuffer,
+		unsigned char bytesNumber,
+		bool stopBit);
 };
 
 #endif

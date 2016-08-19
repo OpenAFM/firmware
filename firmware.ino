@@ -5,9 +5,6 @@
 /* Pin Definitions */
 
 //Pins for DAC (tlc5620)
-#define _SDI 12 //Data output pin (this number will be converted to analog)(MSB first)
-#define _SCK 11 //Clock
-#define LOAD 9  //Load HIGH to clock data into DAC
 #define LDAC 10 //ldac HIGH to stop DAC output while clocking. 
 #define RNG 0   //HIGH doubles the output voltage
 
@@ -29,7 +26,8 @@ Scanner* scanner=new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 
 //This function runs once, when the arduino starts
 void setup() {
-  Serial.begin(BAUDRATE);
+	Serial.begin(BAUDRATE);
+	ADDAC::Setup(LDAC);
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -37,33 +35,40 @@ extern String const PARAM_LINE_LENGTH;
 //This function keeps looping
 void loop() {
 
-  String cmd = phone->listen();
+	String cmd = phone->listen();
   
-  delay(1);
-  
-  if (cmd=="GO") {
-    scanner->start();
-  }
-
-  if (cmd == "SETUP") {
-      delete ctrl;
-      delete sampler;
-      delete scanner;
+	delay(1);
+ 
+	if (cmd == "GO")
+	{
+		scanner->start();
+	}
+	else if (cmd == "SETUP")
+	{
+		delete ctrl;
+		delete sampler;
+		delete scanner;
       
-      int CUSTOM_STEPSIZE=Serial.parseInt();
-      int CUSTOM_LINE_LENGTH=Serial.parseInt();
-      int CUSTOM_SAMPLE_SIZE=Serial.parseInt();
+		int CUSTOM_STEPSIZE = Serial.parseInt();
+		int CUSTOM_LINE_LENGTH = Serial.parseInt();
+		int CUSTOM_SAMPLE_SIZE = Serial.parseInt();
      
-      ctrl =new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
-      sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
-      scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
+		ctrl = new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
+		sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
+		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     
-  }
-  if (cmd == "STREAM")
-  {
-    scanner->stream();
-  }
+	}
+	else if (cmd == "STREAM")
+	{
+		scanner->stream();
+	}
+	else if (cmd == "ERROR")
+	{
 
-  else if (cmd="ERROR"){;}
+	}
+	else if (cmd == "PING")
+	{
+		phone->sendString("PONG\r\n");
+	}
   
 }

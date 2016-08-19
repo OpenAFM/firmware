@@ -27,12 +27,6 @@ private:
 	// amplification
 	bool useRNG;
 
-	// data pin number
-	int dataPin;
-	// clock pin number
-	int clockPin;
-	// load pin number
-	int loadPin;
 	// ldac pin number
 	int ldacPin;
 
