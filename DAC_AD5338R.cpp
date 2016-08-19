@@ -60,15 +60,15 @@ unsigned char DAC_AD5338R::Init(unsigned char a1LogicLevel,
 {
     unsigned char status = 0;
     
-    /* GPIO configuration. */
-    pinMode(AD569X_LDAC_OUT, OUTPUT);
-    digitalWrite(AD569X_LDAC_OUT, HIGH);
-    pinMode(AD569X_RESET_OUT, OUTPUT);
-    digitalWrite(AD569X_RESET_OUT, HIGH);
-    pinMode(AD569X_RSTSEL_OUT, OUTPUT);
-    digitalWrite(AD569X_RSTSEL_OUT, LOW);
-    pinMode(AD569X_GAIN_OUT, OUTPUT);
-    digitalWrite(AD569X_GAIN_OUT, LOW);
+    ///* GPIO configuration. */
+    //pinMode(AD569X_LDAC_OUT, OUTPUT);
+    //digitalWrite(AD569X_LDAC_OUT, HIGH);
+    //pinMode(AD569X_RESET_OUT, OUTPUT);
+    //digitalWrite(AD569X_RESET_OUT, HIGH);
+    //pinMode(AD569X_RSTSEL_OUT, OUTPUT);
+    //digitalWrite(AD569X_RSTSEL_OUT, LOW);
+    //pinMode(AD569X_GAIN_OUT, OUTPUT);
+    //digitalWrite(AD569X_GAIN_OUT, LOW);
 
     status = I2C_Init(100000);
     
