@@ -14,15 +14,15 @@
 #define SAMPLE_SIZE 5   //Number of samples taken at each pixel. Median is taken as true value
 
 //Communication parameters
-#define BAUDRATE 115200   //Serial interfaces communication speed (bps)
+#define BAUDRATE 9600   //Serial interfaces communication speed (bps)
 
 
 /* Setup */
 Adafruit_ADS1015 adc;
-RTx* phone=new RTx();
-PiezoDACController* ctrl=new PiezoDACController(STEPSIZE, LINE_LENGTH, LDAC, RNG);
-SignalSampler* sampler=new SignalSampler(adc, SAMPLE_SIZE);
-Scanner* scanner=new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
+RTx* phone = new RTx();
+PiezoDACController* ctrl = new PiezoDACController(STEPSIZE, LINE_LENGTH, LDAC, RNG);
+SignalSampler* sampler = new SignalSampler(adc, SAMPLE_SIZE);
+Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 
 //This function runs once, when the arduino starts
 void setup() {
@@ -36,8 +36,17 @@ extern String const PARAM_LINE_LENGTH;
 void loop() {
 
 	String cmd = phone->listen();
-  
-	delay(1);
+
+/*
+  Serial.println("The message was " + cmd + " ok?");
+  if (cmd == "PING")
+  {
+    Serial.println("PONG");
+  }
+*/
+
+
+	//delay(1);
  
 	if (cmd == "GO")
 	{
@@ -68,7 +77,7 @@ void loop() {
 	}
 	else if (cmd == "PING")
 	{
-		phone->sendString("PONG\r\n");
+    Serial.println("PONG");
 	}
-  
+ 
 }
