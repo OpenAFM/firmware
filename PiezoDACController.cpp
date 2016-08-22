@@ -15,20 +15,12 @@ PiezoDACController::PiezoDACController(int stepSize, int lineLength, int ldacPin
   this->stepSize = stepSize;
   this->lineSize = lineLength;
 
-  this->ldacPin = ldacPin;
   this->useRNG = useRNG;
 
   this->currentStep = 0;
   this->currentX = 0;
   this->currentY = 0;
   this->currentZ = 0;
-
-  // make the DAC
-  DAC_AD5696 daq;
-
-  pinMode(this->ldacPin, OUTPUT);
-
-  digitalWrite(this->ldacPin, OFF);
 
   invertChannels = false;
 }
@@ -40,18 +32,12 @@ PiezoDACController::~PiezoDACController() {}
 unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineSize;
-
-  this->ldacPin = ldacPin;
   this->useRNG = useRNG;
 
   this->currentStep = 0;
   this->currentX = 0;
   this->currentY = 0;
   this->currentZ = 0;
-
-  pinMode(this->ldacPin, OUTPUT);
-
-  digitalWrite(this->ldacPin, OFF);
 
 
   invertChannels = false;
@@ -63,72 +49,9 @@ unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, 
 const byte mask = 128;
 
 
-// set voltage value for given channel
-int PiezoDACController::go(int channel, int value) {
-  
-  ////  Set DAC Channel LMB (left most significant bit)
-  //// 0 0 = A  X
-  //// 0 1 = B  Y
-  //// 1 0 = C  Z
-  //// 1 1 = D  -
-  //
+int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int times)
+{
 
-  //switch (channel)
-  //{
-  //  case CHANNEL_A:
-  //    setBitOff();
-  //    setBitOff();
-  //    break;
-
-  //  case CHANNEL_B:
-  //    setBitOff();
-  //    setBitOn();
-  //    break;
-
-  //  case CHANNEL_C:
-  //    setBitOff();
-  //    setBitOn();
-  //    break;
-
-  //  case CHANNEL_D:
-  //    setBitOn();
-  //    setBitOff();
-  //    break;
-  //}
-
-  //// 1x gain (0) or 2x (1)
-  //useRNG ? setBitOn() : setBitOff();
-
-  ///*
-  //for (int i = 7; i >= 0; i--)
-  //{
-  //  // shifting bits to the right.
-  //  int k = value >> i;
-
-  //  // true if k (LMS) is 1
-  //  if (k & 1) {
-  //    sendHighSignal();
-  //  } else {
-  //    sendLowSignal();
-  //  }
-  //}
-  //*/
-  //for (int i = 0; i <= 7; i++) {
-  //  if (value & mask) {
-  //    setBitOn();
-  //  } else {
-  //    setBitOff();
-  //  }
-  //  value = value << 1;
-  //}
-  // unsigned int t = micros();
-  //  while (micros() - t <= 10)
-  //{
-  //  // Wait...
-  //}      
-  //
-  //  // load to output registers
-  //loadDAC();
 }
 
 // reset coordinates to 0,0
@@ -136,8 +59,8 @@ unsigned int PiezoDACController::reset() {
   currentStep = 0;
   currentZ = 0;
   setCoordinates();
-  go(CHANNEL_A, currentX);
-  go(CHANNEL_B, currentY);
+  //go(CHANNEL_A, currentX);
+  //go(CHANNEL_B, currentY);
   return currentStep;
 }
 
@@ -146,8 +69,8 @@ unsigned int PiezoDACController::nextLine() {
   int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
   currentStep += delta;
   setCoordinates();
-  go(CHANNEL_A, currentX);
-  go(CHANNEL_B, currentY);
+  //go(CHANNEL_A, currentX);
+  //go(CHANNEL_B, currentY);
   return currentStep;
 }
 
@@ -156,8 +79,8 @@ unsigned int PiezoDACController::eol() {
   nextLine();
   currentStep--;
   setCoordinates();
-  go(CHANNEL_A, currentX);
-  go(CHANNEL_B, currentY);
+  //go(CHANNEL_A, currentX);
+  //go(CHANNEL_B, currentY);
   return currentStep;
 }
 
@@ -181,8 +104,8 @@ unsigned int PiezoDACController::increaseVoltage() {
   
   setCoordinates();
   
-  go(CHANNEL_A, currentX);
-  go(CHANNEL_B, currentY);
+  //go(CHANNEL_A, currentX);
+  //go(CHANNEL_B, currentY);
   
   return currentStep;
 }
@@ -195,8 +118,8 @@ unsigned int PiezoDACController::decreaseVoltage() {
 
   setCoordinates();
 
-  go(CHANNEL_A, currentX);
-  go(CHANNEL_B, currentY);
+  //go(CHANNEL_A, currentX);
+  //go(CHANNEL_B, currentY);
 
   return currentStep;
 }

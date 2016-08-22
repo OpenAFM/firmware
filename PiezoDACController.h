@@ -16,6 +16,28 @@
 
 #define DAC_TLC_5620_CONTROLLER "0.0.1"
 
+// enumeration of directions that the stage can move in
+enum PIEZO_DIRECTION
+{
+	X_UP,
+	X_DOWN,
+	Y_UP,
+	Y_DOWN,
+	Z_UP,
+	Z_DOWN
+};
+
+// what dac channels correspond to each direction
+// e.g to move X_UP direction, X_PLUS channel should increase, and X_MINUS channel should decrease
+// so X_PLUS and X_MINUS should be opposite quadrants of the piezo
+enum PIEZO_DIRECTION_CHANNELS
+{
+	X_PLUS = 1,
+	X_MINUS = 3,
+	Y_PLUS = 2,
+	Y_MINUS = 4,
+};
+
 // Defines a digital to analog controller for TLC5620CN
 class PiezoDACController {
 
@@ -27,9 +49,6 @@ private:
 	// amplification
 	bool useRNG;
 
-	// ldac pin number
-	int ldacPin;
-
 	// the current pixel position in the image.
 	// each pixel has a unique x,yi position.
 	unsigned int currentStep;
@@ -38,12 +57,6 @@ private:
 	int setBitOn();
 	// sends an off bit to the chip
 	int setBitOff();
-
-	// load DAC
-	int loadDAC();
-
-	// send data to dac.
-	int go(int, int);
 
 	// set the x & y coordinates
 	int setCoordinates();
@@ -57,6 +70,11 @@ private:
 
 	// scan 90-degree angle
 	bool invertChannels;
+
+	/*!
+		move the stage in the direction given.  Move \a times amount of steps
+	*/
+	int move(PIEZO_DIRECTION direction, unsigned int times);
 
 public:
 	// constructor

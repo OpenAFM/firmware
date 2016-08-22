@@ -12,6 +12,7 @@ uint8_t ADDAC::ldacPin;
 
 ADDAC_Static_Constructor::ADDAC_Static_Constructor()
 {
+	Serial.println("ADDAC Constructed");
 	ADDAC::ldacPin = 0;
 	ADDAC::_setup = false;
 }
@@ -24,22 +25,29 @@ void ADDAC::LoadDAC()
 
 void ADDAC::SetLDac(bool state)
 {
-	digitalWrite(ldacPin, state ? ON : OFF);
+	digitalWrite(ldacPin, state ? 1 : 0);
+	//Serial.print("LDAC=");
+	//Serial.println(state);
 }
 
 
-void ADDAC::Setup(uint8_t ldacPin)
+unsigned char ADDAC::Setup(uint8_t ldacPin)
 {
 	// only set up once?
+	_setup = false;
+	unsigned char i2cstatus;
 	if (!_setup)
 	{
-		unsigned char status = I2C_Init(100000);
+		i2cstatus = I2C_Init(100000);
 
 		ADDAC::ldacPin = ldacPin;
 		pinMode(ldacPin, OUTPUT);
-		digitalWrite(ldacPin, OFF);
+		digitalWrite(ldacPin, 0);
 		_setup = true;
+
+		Serial.println("Setup");
 	}
+	return i2cstatus;
 }
 
 ADDAC::ADDAC()
@@ -59,6 +67,7 @@ ADDAC::ADDAC()
 unsigned char ADDAC::I2C_Init(unsigned long clockFreq)
 {
 	//Wire.begin(); Will allocate 160 bytes of memory, signal sampler OR this should be initializing I2C, not twice.
+	Wire.begin();
 	Wire.setClock(clockFreq);
 	return 1;
 }

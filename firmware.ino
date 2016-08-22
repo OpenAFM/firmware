@@ -6,7 +6,7 @@
 /* Pin Definitions */
 
 //Pins for DAC (tlc5620)
-#define LDAC 10 //ldac HIGH to stop DAC output while clocking. 
+#define LDAC 7 //ldac HIGH to stop DAC output while clocking. 
 #define RNG 0   //HIGH doubles the output voltage
 
 //Imaging parameters
@@ -50,17 +50,30 @@ Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 unsigned char zchar = (unsigned char)0;
 DAC_AD5696* dac = new DAC_AD5696();
 
+long dacMax = (long)5 * (long)65535;
+
 //This function runs once, when the arduino starts
 void setup() {
 	Serial.begin(BAUDRATE);
-	ADDAC::Setup(LDAC);
-  dac->Init(0,0);
+	//pinMode(7, OUTPUT);
+	unsigned char i2csetup = ADDAC::Setup(LDAC);
+	Serial.print("I2C initialisation ");
+	Serial.println(i2csetup == 1 ? "was successfull!" : "failed!");
+	dac->Init(0,0);
 }
 
 extern String const PARAM_LINE_LENGTH;
 
 //This function keeps looping
-void loop() {
+void loop() 
+{
+	////ADDAC::SetLDac(false);
+	//digitalWrite(LDAC, 0);
+	//delay(500);
+	////ADDAC::SetLDac(true);
+	//digitalWrite(LDAC, 1);
+	//delay(500);
+	//return;
 
 	String cmd = phone->listen();
 
@@ -71,7 +84,6 @@ void loop() {
     Serial.println("PONG");
   }
 */
-
 
 	//delay(1);
   int idx;
@@ -112,52 +124,187 @@ void loop() {
 	{
 		Serial.println("PONG");
 	}
+	else if (cmd == "PDAC::RESET")
+	{
+		dac->Reset(AD569X_RST_MIDSCALE);
+		Serial.println("Resetting Piezo DAC");
+	}
 	else
-  {
-    //////////////////////////////////////////////////////
-    // SET DAC VOLTAGE (FOR DEBUG)
-    //////////////////////////////////////////////////////
-    
-    if (idx = cmd.indexOf("PDAC::SET") == 0)
-    {
-      //Serial.println("DACC!!!");
-      bool ok = false;
-      String channelPart;
-      String valuePart;
-      int channel;
-      float value;
-      while(1)
-      {
-        String *parts;
-        //int num = splitString(cmd, ' ', parts);
-        //Serial.println("There were " + String(num) + " parts");
-        // extract channel
-        int pos = cmd.indexOf(' ', pos);
-        int pos2 = cmd.indexOf(' ', pos+1);
-        if (pos == -1 || pos2 == -1) break;
-        channelPart = cmd.substring(pos, pos2);
-  
-        // extract value
-        pos = pos2+1;
-        valuePart = cmd.substring(pos);
+	{
+		//////////////////////////////////////////////////////
+		// SET DAC VOLTAGE (FOR DEBUG)
+		//////////////////////////////////////////////////////
 
-        ok = true;
-        break;
-      }
+		if (idx = cmd.indexOf("PDAC::SET") == 0)
+		{
+			//Serial.println("DACC!!!");
+			bool ok = false;
+			String channelPart;
+			String valuePart;
+			int channel;
+			float value;
+			while (1)
+			{
+				String *parts;
+				//int num = splitString(cmd, ' ', parts);
+				//Serial.println("There were " + String(num) + " parts");
+				// extract channel
+				int pos = cmd.indexOf(' ', pos);
+				int pos2 = cmd.indexOf(' ', pos + 1);
+				if (pos == -1 || pos2 == -1) break;
+				channelPart = cmd.substring(pos, pos2);
+				channel = channelPart.toInt();
 
-      if (ok)
-      {
-        Serial.println("Setting channel " + channelPart + " to " + valuePart);
-        channel = channelPart.toInt();
-        value = valuePart.toFloat();
+				// check range
+				if (channel < 1 || channel > 4)
+				{
+					Serial.println("Channel number must be 1, 2, 3 or 4");
+					break;
+				}
 
-        
-        
-      } else {
-        Serial.println("Invalid command syntax!");
-      }
+				// extract value
+				pos = pos2 + 1;
+				valuePart = cmd.substring(pos);
+				value = valuePart.toFloat();
 
-    }
+				// check range
+				if (value < 0.0f || value > 5.0f)
+				{
+					Serial.println("Channel value must be between 0.0 and 5.0");
+					break;
+				}
+
+				ok = true;
+				break;
+			}
+
+			if (ok)
+			{
+				Serial.print("Setting channel ");
+				Serial.print(channel);
+				Serial.print(" to ");
+				Serial.println(value);
+
+				//long rand = random(0, dacMax);
+				//float rnd = 5.0F;
+				//rnd /= dacMax;
+				//rnd *= rand;
+				dac->SetVoltage(channel, value, 5.0f);
+
+
+
+			}
+			else {
+				Serial.println("Invalid command syntax!");
+			}
+
+		}
+
+		////////////////////////////////////////////
+		// READ THE DAC VOLTAGE
+		////////////////////////////////////////////
+		else if (idx = cmd.indexOf("PDAC::GET") == 0)
+		{
+			//Serial.println("DACC!!!");
+			bool ok = false;
+			String channelPart;
+			int channel;
+			float value;
+			while (1)
+			{
+				String *parts;
+				//int num = splitString(cmd, ' ', parts);
+				//Serial.println("There were " + String(num) + " parts");
+				// extract channel
+				int pos = cmd.indexOf(' ', pos);
+				if (pos == -1) break;
+				channelPart = cmd.substring(pos+1);
+				channel = channelPart.toInt();
+
+				// check range
+				if (channel < 1 || channel > 4)
+				{
+					Serial.println("Channel number must be 1, 2, 3 or 4");
+					break;
+				}
+
+				ok = true;
+				break;
+			}
+
+			if (ok)
+			{
+
+				//long rand = random(0, dacMax);
+				//float rnd = 5.0F;
+				//rnd /= dacMax;
+				//rnd *= rand;
+				unsigned short val = dac->ReadBack((unsigned char)channel);
+				Serial.print("Channel ");
+				Serial.print(channel);
+				Serial.print(" is set to ");
+				Serial.println(val);
+
+
+
+			}
+			else {
+				Serial.println("PDAC::GET - Invalid command syntax!");
+			}
+
+		}
+
+		////////////////////////////////////////////
+		// SET THE STATE OF THE LDAC PIN
+		////////////////////////////////////////////
+		else if (idx = cmd.indexOf("LDAC::SET") == 0)
+		{
+			//Serial.println("DACC!!!");
+			bool ok = false;
+			String channelPart;
+			int state;
+			float value;
+			while (1)
+			{
+				String *parts;
+				//int num = splitString(cmd, ' ', parts);
+				//Serial.println("There were " + String(num) + " parts");
+				// extract channel
+				int pos = cmd.indexOf(' ', pos);
+				if (pos == -1) break;
+				channelPart = cmd.substring(pos + 1);
+				state = channelPart.toInt();
+
+				// check range
+				if (state != 0 && state != 1)
+				{
+					Serial.println("Must be 0 or 1");
+					break;
+				}
+
+				ok = true;
+				break;
+			}
+
+			if (ok)
+			{
+
+				//long rand = random(0, dacMax);
+				//float rnd = 5.0F;
+				//rnd /= dacMax;
+				//rnd *= rand;
+				ADDAC::SetLDac(state == 1);
+				Serial.print("LDAC state was set to ");
+				Serial.println(state == 1 ? "ON" : "OFF");
+
+
+
+			}
+			else {
+				Serial.println("LDAC::SET - Invalid command syntax!");
+			}
+
+		}
 	}
  
 }

@@ -27,11 +27,18 @@ private:
 
 public:
 
-	// take the LDAC pin low, then high, to trigger DAQ register updates everywhere
+	/*! 
+   * take the LDAC pin low, then high, to trigger DAQ register updates everywhere
+   */
 	static void LoadDAC();
+  
 	static void SetLDac(bool state);
 	ADDAC();
-	static void Setup(uint8_t ldacPin);
+
+	/*! Setup the digital output pins and the I2C line
+		Returns the result of the I2C_Init function
+	*/
+	static unsigned char Setup(uint8_t ldacPin);
 
 	/*! Initializes the I2C communication peripheral. */
 	static unsigned char I2C_Init(unsigned long clockFreq);
