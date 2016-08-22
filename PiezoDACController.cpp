@@ -11,9 +11,11 @@ extern const int CHANNEL_C = 2;
 extern const int CHANNEL_D = 3;
 
 // constructor
-PiezoDACController::PiezoDACController(int stepSize, int lineLength, int ldacPin, bool useRNG) {
+PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength, int ldacPin, bool useRNG) {
   this->stepSize = stepSize;
   this->lineSize = lineLength;
+
+  this->dac = dac;
 
   this->useRNG = useRNG;
 
@@ -21,6 +23,9 @@ PiezoDACController::PiezoDACController(int stepSize, int lineLength, int ldacPin
   this->currentX = 0;
   this->currentY = 0;
   this->currentZ = 0;
+
+  // should start with DACs at mid range
+  SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
 
   invertChannels = false;
 }
@@ -39,6 +44,8 @@ unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, 
   this->currentY = 0;
   this->currentZ = 0;
 
+  // should start with DACs at mid range
+  SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
 
   invertChannels = false;
 
@@ -48,10 +55,82 @@ unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, 
 
 const byte mask = 128;
 
-
-int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int times)
+/*! Set the DAC output and update internal position. */
+int PiezoDACController::SetDACOutput(uint8_t channels, uint16_t value)
 {
+	dac->SetOutput(channels, value);
 
+	if (channels & X_PLUS) currentXPlus = value;
+	if (channels & X_MINUS) currentXMinus = value;
+	if (channels & Y_PLUS) currentYPlus = value;
+	if (channels & Y_MINUS) currentYMinus = value;
+
+
+	return 0;
+}
+
+
+int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool allAtOnce)
+{
+	int adiff = allAtOnce ? steps : 1; // if all at once, change voltage by full amount in one go.  Otherwise on at a time.
+	int lim = allAtOnce ? 1 : steps;  // if all in one go, only do once, otherwise do each step
+
+	uint8_t channelPlus = 0;
+	uint8_t channelMinus = 0;
+	uint16_t currentPlus = 0;
+	uint16_t currentMinus = 0;
+	int diff = 0;
+	bool doSingle = true;
+
+
+	// Decide what to move where
+	switch (direction)
+	{
+		// for Z up/down, increment/decrement all dac channels
+	case Z_UP:
+	case Z_DOWN:
+		diff = direction == Z_UP ? adiff : -adiff;  // increase or decrease?
+
+		for (int i = 0; i < lim; i++)
+		{
+			SetDACOutput(X_PLUS, currentXPlus + diff);
+			SetDACOutput(X_MINUS, currentXMinus + diff);
+			SetDACOutput(Y_PLUS, currentYPlus + diff);
+			SetDACOutput(Y_MINUS, currentYMinus + diff);
+		}
+		doSingle = false;
+		break;
+
+	case X_UP:
+	case X_DOWN:
+		diff = direction == X_UP ? adiff : -adiff;  // increase or decrease?
+		currentPlus = currentXPlus;
+		currentMinus = currentXMinus;
+		channelPlus = X_PLUS;
+		channelMinus = X_MINUS;;
+		break;
+
+	case Y_UP:
+	case Y_DOWN:
+		diff = direction == Y_UP ? adiff : -adiff;  // increase or decrease?
+		currentPlus = currentXPlus;
+		currentMinus = currentXMinus;
+		channelPlus = Y_PLUS;
+		channelMinus = Y_MINUS;;
+		break;
+
+	}
+
+	// change DAC
+	if (doSingle)
+	{
+		for (int i = 0; i < lim; i++)
+		{
+			SetDACOutput(channelPlus, currentPlus + diff);
+			SetDACOutput(channelMinus, currentMinus - diff);
+		}
+	}
+	return 0;
 }
 
 // reset coordinates to 0,0
@@ -86,14 +165,15 @@ unsigned int PiezoDACController::eol() {
 
 // set coordinates relative to currentStep
 int PiezoDACController::setCoordinates() {
-  currentX = currentStep % lineSize;
-  currentY = currentStep / lineSize;
+	currentX = currentStep % lineSize;
+	currentY = currentStep / lineSize;
 
-  if (invertChannels) {
-    int temp = currentX;
-    currentX = currentY;
-    currentY = temp;
-  }
+	if (invertChannels) {
+		int temp = currentX;
+		currentX = currentY;
+		currentY = temp;
+	}
+	return 0;
 }
 
 // increase voltage

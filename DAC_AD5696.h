@@ -58,12 +58,6 @@
 /******************************** AD569X *************************************/
 /******************************************************************************/
 
-/* AD569X Versions */
-#define AD5694          1   // 12-bit DAC, no internal voltage reference.
-#define AD5696          2   // 16-bit DAC, no internal voltage reference.
-#define AD5694R         3   // 12-bit DAC, with internal voltage reference.
-#define AD5695R         4   // 14-bit DAC, with internal voltage reference.
-#define AD5696R         5   // 16-bit DAC, with internal voltage reference.
 
 /* LDAC */
 #define AD569X_LDAC_OUT        10
@@ -143,42 +137,47 @@
 #define AD569X_RST_ZERO_SCALE     0
 #define AD569X_RST_MIDSCALE       1
 
+#define AD569X_DAC_MAX 65535
+
 /******************************************************************************/
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 class DAC_AD5696 : public ADDAC
 {
-  public:
+public:
 
-  /*! Initializes the device. */
-  unsigned char Init(unsigned char a1LogicLevel,
-                          unsigned char a0LogicLevel);
-                          
-  /*! Resets the device(clears the outputs to either zero scale or midscale). */
-  void Reset(unsigned char resetOutput);
-  
-  /*! Puts the device in a specific power mode. */
-  void PowerMode(unsigned char channel, unsigned char pwrMode);
-  
-  /*! Selects internal or external voltage reference. */
-  void InternalVoltageReference(unsigned char vRefMode);
-  
-  /*!  Writes a 24-bit data-word to the Input Register of the device. */
-  void SetInputRegister(unsigned long registerValue);
-  
-  /*! Writes data to the Input Register or to DAC Register of a channel. */
-  void WriteFunction(unsigned char writeCommand, 
-                            unsigned char channel, 
-                            unsigned short data);
-  
-  /*! Reads back the binary value written to one of the channels. */
-  unsigned short ReadBack(unsigned char dacChannelAddr);
-  
-  /*! Selects the output voltage of the selected channel. */
-  float SetVoltage(unsigned char channel, 
-                          float outputVoltage, 
-                          float vRef);
-                          
+	/*! Initializes the device. */
+	unsigned char Init(unsigned char a1LogicLevel,
+		unsigned char a0LogicLevel);
+
+	/*! Resets the device(clears the outputs to either zero scale or midscale). */
+	void Reset(unsigned char resetOutput);
+
+	/*! Puts the device in a specific power mode. */
+	void PowerMode(unsigned char channel, unsigned char pwrMode);
+
+	/*! Selects internal or external voltage reference. */
+	void InternalVoltageReference(unsigned char vRefMode);
+
+	/*!  Writes a 24-bit data-word to the Input Register of the device. */
+	void SetInputRegister(unsigned long registerValue);
+
+	/*! Writes data to the Input Register or to DAC Register of a channel. */
+	void WriteFunction(unsigned char writeCommand,
+		unsigned char channel,
+		unsigned short data);
+
+	/*! Reads back the binary value written to one of the channels. */
+	unsigned short ReadBack(unsigned char dacChannelAddr);
+
+	/*! Selects the output voltage of the selected channel. */
+	float SetVoltage(unsigned char channel,
+		float outputVoltage,
+		float vRef);
+
+	/*! Set the output value of a channel by binary. */
+	int SetOutput(uint8_t channel, uint16_t value);
+
 private:
 
 

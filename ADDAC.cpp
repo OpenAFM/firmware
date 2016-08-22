@@ -17,6 +17,15 @@ ADDAC_Static_Constructor::ADDAC_Static_Constructor()
 	ADDAC::_setup = false;
 }
 
+void ADDAC::softLoadDAC()
+{
+	Wire.beginTransmission(B00011000);
+	Wire.write(B00101111);  // update DAC register on all channels
+	Wire.write(0x00);  // write two bytes, presumably they are ignored.
+	Wire.write(0x00);
+	Wire.endTransmission();
+}
+
 void ADDAC::LoadDAC()
 {
 	digitalWrite(ldacPin, OFF);

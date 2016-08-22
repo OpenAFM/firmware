@@ -31,6 +31,9 @@ public:
    * take the LDAC pin low, then high, to trigger DAQ register updates everywhere
    */
 	static void LoadDAC();
+
+	/*! load the DAC registers via software */
+	static void softLoadDAC();
   
 	static void SetLDac(bool state);
 	ADDAC();
@@ -54,6 +57,9 @@ public:
 		unsigned char* dataBuffer,
 		unsigned char bytesNumber,
 		bool stopBit);
+
+	virtual int SetOutput(uint8_t channel,
+		uint16_t value) = 0;
 };
 
 #endif

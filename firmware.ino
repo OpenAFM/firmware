@@ -26,17 +26,37 @@ int splitString(String str, char delimiter, String *out)
     int pos2 = 0;
     int count = 0;
 
-    while(true)
+	// how many delimiters in string?
+	int numParts = 0;
+	for (int i = 0; i < len; i++)
+	{
+		if (str[i] == delimiter) numParts++;
+	}
+	numParts += 1;  // 1 delimiter means 2 parts
+	out = new String[numParts];
+
+	for (int i = 0; i < numParts; i++)
     {
       // find the next delimiter
-      pos = str.indexOf(delimiter, pos);
+      pos2 = str.indexOf(delimiter, pos);
 
       // ended?
-      if (pos == -1) break;
+	  if (pos2 == -1)
+	  {
+		  String part = str.substring(pos);
+		  out[i] = part;
+		  break;
+	  }
+	  else
+	  {
+		  // extract the string
+		  String part = str.substring(pos, pos2);
+		  out[i] = part;
+	  }
 
-      // extract the string
-      String part = str.substring(pos, pos2);
+	  pos = pos2 + 1;
     }
+	return numParts;
 }
 
 
@@ -44,11 +64,11 @@ int splitString(String str, char delimiter, String *out)
 /* Setup */
 Adafruit_ADS1015 adc;
 RTx* phone = new RTx();
-PiezoDACController* ctrl = new PiezoDACController(STEPSIZE, LINE_LENGTH, LDAC, RNG);
+DAC_AD5696* dac = new DAC_AD5696();
+PiezoDACController* ctrl = new PiezoDACController(dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
 SignalSampler* sampler = new SignalSampler(adc, SAMPLE_SIZE);
 Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 unsigned char zchar = (unsigned char)0;
-DAC_AD5696* dac = new DAC_AD5696();
 
 long dacMax = (long)5 * (long)65535;
 
@@ -107,7 +127,7 @@ void loop()
 		int CUSTOM_LINE_LENGTH = Serial.parseInt();
 		int CUSTOM_SAMPLE_SIZE = Serial.parseInt();
      
-		ctrl = new PiezoDACController(CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
+		ctrl = new PiezoDACController(dac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
 		sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
 		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     

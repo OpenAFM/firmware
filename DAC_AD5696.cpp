@@ -285,3 +285,34 @@ float DAC_AD5696::SetVoltage(unsigned char channel,
     
     return actualVoltage;
 }
+
+
+
+/***************************************************************************//**
+* @brief Selects the output voltage of the selected channel.
+*
+* @param channel - Channel option. Channel option. Any combination of DAC
+*                  channels can be selected.
+*                  Example: AD569X_ADDR_DAC_A
+*                           AD569X_ADDR_DAC_B
+*                           AD569X_ADDR_DAC_C
+*                           AD569X_ADDR_DAC_D
+* @param value - The value to set to.
+*
+* @return 0 - success
+*******************************************************************************/
+int DAC_AD5696::SetOutput(uint8_t channel,
+	uint16_t value)
+{
+	channel &= B00001111;  // smash any of the higher bits, not used here.
+	uint8_t lsb = value;
+	uint8_t msb = value >> 8;
+
+	Wire.beginTransmission(B00011000);  //12 + R/W 0
+	Wire.write(B00110000 | channel);  // set and update all DAC channels;
+	Wire.write(lsb);  // set to half voltage
+	Wire.write(msb);
+	Wire.endTransmission();
+
+	return 0;
+}

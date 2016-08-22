@@ -1,4 +1,6 @@
 #include <Wire.h>
+#include "ADDAC.h"
+#include "DAC_AD5696.h"
 
 // DACWriter.h
 // Author A Michel
@@ -30,18 +32,21 @@ enum PIEZO_DIRECTION
 // what dac channels correspond to each direction
 // e.g to move X_UP direction, X_PLUS channel should increase, and X_MINUS channel should decrease
 // so X_PLUS and X_MINUS should be opposite quadrants of the piezo
-enum PIEZO_DIRECTION_CHANNELS
+enum PIEZO_DIRECTION_CHANNELS : uint8_t
 {
-	X_PLUS = 1,
-	X_MINUS = 3,
-	Y_PLUS = 2,
-	Y_MINUS = 4,
+	X_PLUS = AD569X_MSK_CH_A,
+	X_MINUS = AD569X_MSK_CH_C,
+	Y_PLUS = AD569X_MSK_CH_B,
+	Y_MINUS = AD569X_MSK_CH_D,
 };
 
 // Defines a digital to analog controller for TLC5620CN
 class PiezoDACController {
 
 private:
+	// the DAC class
+	ADDAC *dac;
+
 	// Number of increments per pixel
 	int stepSize;
 	// number of pixels in line
@@ -53,11 +58,6 @@ private:
 	// each pixel has a unique x,yi position.
 	unsigned int currentStep;
 
-	// sends an on bit to the chip
-	int setBitOn();
-	// sends an off bit to the chip
-	int setBitOff();
-
 	// set the x & y coordinates
 	int setCoordinates();
 
@@ -68,17 +68,30 @@ private:
 	// not used; intended to store height information.
 	int currentZ;
 
+	// the current DAC output values (values from 0 to 65535)
+	uint16_t currentXPlus;
+	uint16_t currentXMinus;
+	uint16_t currentYPlus;
+	uint16_t currentYMinus;
+
+
 	// scan 90-degree angle
 	bool invertChannels;
 
 	/*!
-		move the stage in the direction given.  Move \a times amount of steps
+		move the stage in the direction given.  Move \a times amount of steps.
+		allAtOnce says whether to move step by step, \a times times, or just do all steps in one go (large voltage change)
 	*/
-	int move(PIEZO_DIRECTION direction, unsigned int times);
+	int move(PIEZO_DIRECTION direction, unsigned int times, bool allAtOnce);
+
+	/*!
+		Set DAC output.  Includes scaling etc.
+	*/
+	int SetDACOutput(uint8_t channels, uint16_t value);
 
 public:
 	// constructor
-	PiezoDACController(int, int, int, bool);
+	PiezoDACController(ADDAC *dac, int, int, int, bool);
 	
 	// destructor
 	~PiezoDACController();
