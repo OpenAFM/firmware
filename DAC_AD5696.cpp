@@ -62,8 +62,7 @@
  *          Example: 0x0 - I2C peripheral was not initialized.
  *                 0x1 - I2C peripheral is initialized.
 *******************************************************************************/
-unsigned char DAC_AD5696::Init(unsigned char AD569X, 
-                          unsigned char a1LogicLevel,
+unsigned char DAC_AD5696::Init(unsigned char a1LogicLevel,
                           unsigned char a0LogicLevel)
 {
     unsigned char status = 0;

@@ -70,9 +70,9 @@ unsigned char DAC_AD5338R::Init(unsigned char a1LogicLevel,
     //pinMode(AD569X_GAIN_OUT, OUTPUT);
     //digitalWrite(AD569X_GAIN_OUT, LOW);
 
-    status = I2C_Init(100000);
+    //status = I2C_Init(100000);
     
-	deviceBitsNumber = 10;
+	  deviceBitsNumber = 10;
     
     /* Store logic levels of A1 and A0 that set the two LSBs of the slave 
        address. */

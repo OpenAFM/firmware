@@ -151,8 +151,7 @@ class DAC_AD5696 : public ADDAC
   public:
 
   /*! Initializes the device. */
-  unsigned char Init(unsigned char AD569X, 
-                          unsigned char a1LogicLevel,
+  unsigned char Init(unsigned char a1LogicLevel,
                           unsigned char a0LogicLevel);
                           
   /*! Resets the device(clears the outputs to either zero scale or midscale). */
