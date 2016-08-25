@@ -99,6 +99,9 @@ void setup() {
 
 	// start ADCs
 	diff_adc.begin();
+
+	// initialise controller
+	ctrl->Init();
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -348,9 +351,9 @@ void loop()
 				channel = channelPart.toInt();
 
 				// check range
-				if (channel < 1 || channel > 4)
+				if (channel < 0 || channel > 15)
 				{
-					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4");
+					if (reply) Serial.println("Channel number must be a bit mask of 4 bits (0 to 15)");
 					break;
 				}
 
@@ -374,7 +377,7 @@ void loop()
 			{
 				if (reply)
 				{
-					Serial.print("Setting channel ");
+					Serial.print("Setting channel mask ");
 					Serial.print(channel);
 					Serial.print(" of ");
 					Serial.print(boolean ? "VCDAC" : "PZDAC");
@@ -428,9 +431,9 @@ void loop()
 				channel = channelPart.toInt();
 
 				// check range
-				if (channel < 1 || channel > 4)
+				if (channel < 0 || channel > 15)
 				{
-					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4");
+					if (reply) Serial.println("Channel number must be a bit mask of 4 bits (0 to 15)");
 					break;
 				}
 
@@ -448,7 +451,7 @@ void loop()
 				unsigned short val = vc_dac->ReadBack((unsigned char)channel);
 				if (reply)
 				{
-					Serial.print("Channel ");
+					Serial.print("Channel mask ");
 					Serial.print(channel);
 					Serial.print(" is set to ");
 					Serial.println(val);

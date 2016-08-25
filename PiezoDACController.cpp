@@ -35,14 +35,17 @@ PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength,
 	currentXMinus = 0;
 	currentYMinus = 0;
 
-	// should start with DACs at mid range
-	SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
-
 	invertChannels = false;
 }
 
 // destructor.
 PiezoDACController::~PiezoDACController() {}
+
+void PiezoDACController::Init()
+{
+	// should start with DACs at mid range
+	SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
+}
 
 // reset parameters
 unsigned int PiezoDACController::reset(int stepSize, int lineSize, int ldacPin, bool useRNG) {
@@ -69,7 +72,7 @@ const byte mask = 128;
 /*! Set the DAC output and update internal position. */
 int PiezoDACController::SetDACOutput(uint8_t channels, uint16_t value)
 {
-	//dac->SetOutput(channels, value);
+	dac->SetOutput(channels, value);
 	Serial.print("Setting DAC channel ");
 	Serial.print(channels);
 	Serial.print(" to ");
