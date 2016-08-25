@@ -94,6 +94,9 @@ void loop()
 	//delay(1);
   int idx;
 
+  //idx = cmd.indexOf("PDAC::REFSET");
+  //Serial.println(idx);
+
    /*
     * Get command over serial
     * PDAC::SET <x> <y>  
@@ -134,6 +137,35 @@ void loop()
 	{
 		dac->Reset(AD569X_RST_MIDSCALE);
 		Serial.println("Resetting Piezo DAC");
+	}
+	else if (cmd.indexOf("PDAC::REFSET") == 0)
+	{
+		Serial.println("asdasd");
+		bool ok = false;
+		String part;
+		int val = 0;
+		while (1)
+		{
+			int pos = cmd.indexOf(' ', pos);
+			if (pos == -1) break;
+			part = cmd.substring(pos+1);
+			Serial.println(part);
+			val = part.toInt();
+			if (val != 0 && val != 1) break;
+
+			ok = true;
+			break;
+		}
+		if (ok)
+		{
+			Serial.print("Turning internal reference ");
+			Serial.println(val == 1 ? "on" : "off");
+			dac->InternalVoltageReference(val == 0 ? 1 : 0);
+		}
+		else
+		{
+			Serial.println("PDAC::REFSET - Invalid command syntax!");
+		}
 	}
 	else
 	{
