@@ -49,7 +49,7 @@ private:
 
 	// Number of increments per pixel
 	int stepSize;
-	// number of pixels in line
+	// size of the scan region in pixels (width and height)
 	int lineSize;
 	// amplification
 	bool useRNG;

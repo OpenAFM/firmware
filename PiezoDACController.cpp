@@ -90,9 +90,9 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 	{
 		// for Z up/down, increment/decrement all dac channels
 	case Z_UP:
-		currentZ++;
+		//currentZ++;
 	case Z_DOWN:
-		currentZ--;
+		//currentZ--;
 		diff = direction == Z_UP ? adiff : -adiff;  // increase or decrease?
 
 		for (int i = 0; i < lim; i++)
@@ -106,9 +106,9 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 		break;
 
 	case X_UP:
-		currentX++;
+		//currentX++;
 	case X_DOWN:
-		currentX--;
+		//currentX--;
 		diff = direction == X_UP ? adiff : -adiff;  // increase or decrease?
 		currentPlus = currentXPlus;
 		currentMinus = currentXMinus;
@@ -117,9 +117,9 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 		break;
 
 	case Y_UP:
-		currentY++;
+		//currentY++;
 	case Y_DOWN:
-		currentY--;
+		//currentY--;
 		diff = direction == Y_UP ? adiff : -adiff;  // increase or decrease?
 		currentPlus = currentXPlus;
 		currentMinus = currentXMinus;
@@ -150,11 +150,15 @@ int PiezoDACController::GotoCoordinates(uint16_t x, uint16_t y)
 
 	move(diffX > 0 ? X_UP : X_DOWN, diffX, true);
 	move(diffY > 0 ? Y_UP : Y_DOWN, diffY, true);
+	currentX = x;
+	currentY = y;
 }
 
 // reset coordinates to startingX and startingY
 unsigned int PiezoDACController::reset() {
   currentStep = 0;
+  //currentX = 0;
+  //currentY = 0;
   currentZ = 0;
   setCoordinates();
   GotoCoordinates(0, 0);
@@ -165,21 +169,23 @@ unsigned int PiezoDACController::reset() {
 
 // move to beginning of next line.
 unsigned int PiezoDACController::nextLine() {
-  int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
-  currentStep += delta;
-  setCoordinates();
+  //int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
+  //currentStep += delta;
+  //setCoordinates();
   //go(CHANNEL_A, currentX);
   //go(CHANNEL_B, currentY);
+	GotoCoordinates(0, currentY + 1);
   return currentStep;
 }
 
 // go to end of current line
 unsigned int PiezoDACController::eol() {
-  nextLine();
-  currentStep--;
-  setCoordinates();
+  //nextLine();
+  //currentStep--;
+  //setCoordinates();
   //go(CHANNEL_A, currentX);
   //go(CHANNEL_B, currentY);
+  GotoCoordinates(currentX, lineSize);
   return currentStep;
 }
 
@@ -202,8 +208,9 @@ unsigned int PiezoDACController::increaseVoltage() {
   // step fwd
   currentStep += stepSize;
   
-  setCoordinates();
+  //setCoordinates();
   
+  move(X_UP, stepSize, false);
   //go(CHANNEL_A, currentX);
   //go(CHANNEL_B, currentY);
   
@@ -214,10 +221,11 @@ unsigned int PiezoDACController::increaseVoltage() {
 unsigned int PiezoDACController::decreaseVoltage() {
 
   // step back
-  currentStep -= stepSize;
+  //currentStep -= stepSize;
 
-  setCoordinates();
+  //setCoordinates();
 
+  move(X_DOWN, stepSize, false);
   //go(CHANNEL_A, currentX);
   //go(CHANNEL_B, currentY);
 
