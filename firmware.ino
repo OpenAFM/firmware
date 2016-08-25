@@ -31,12 +31,12 @@ bool reply = true;
 */
 bool CheckSingleParameter(String commandLine, String name, int &param, bool &ok, String errorMessage)
 {
-	Serial.println(commandLine);
-	Serial.println(name);
-	Serial.println(commandLine.indexOf(name));
+	//Serial.println(commandLine);
+	//Serial.println(name);
+	//Serial.println(commandLine.indexOf(name));
 	if (commandLine.indexOf(name) == 0)
 	{
-		Serial.println("Found....");
+		//Serial.println("Found....");
 		// setting
 		bool ok = false;
 		String part;
@@ -56,9 +56,9 @@ bool CheckSingleParameter(String commandLine, String name, int &param, bool &ok,
 
 		if (ok)
 		{
-			Serial.println("OK");
+			//Serial.println("OK");
 			param = val;
-			Serial.println(param);
+			//Serial.println(param);
 		}
 		else
 		{
@@ -110,6 +110,7 @@ void loop()
 	//delay(1);
 	int idx;
 	bool boolean;
+	uint16_t uint16;
 
 	//idx = cmd.indexOf("VCDAC::REFSET");
 	//Serial.println(idx);
@@ -167,42 +168,20 @@ void loop()
 	////////////////
 	//// LINE LENGTH
 	////////////////
-	//else if (cmd == "SCAN::LINELENGTH::GET")
-	//{
-	//	Serial.println(ctrl->getLineSize());
-	//}
-	//else if (cmd.indexOf("SCAN::LINELENGTH::SET") == 0)
-	//{
-	//	// setting
-	//	bool ok = false;
-	//	String part;
-	//	int val = 0;
-	//	while (1)
-	//	{
-	//		int pos = cmd.indexOf(' ', pos);
-	//		if (pos == -1) break;
-	//		part = cmd.substring(pos + 1);
-	//		//Serial.println(part);
-	//		val = part.toInt();
-	//		if (val < 0) break;
-
-	//		ok = true;
-	//		break;
-	//	}
-	//	if (ok)
-	//	{
-	//		if (reply)
-	//		{
-	//			Serial.print("Setting line length to ");
-	//			Serial.println(val);
-	//		}
-	//		ctrl->setLineSize(val);
-	//	}
-	//	else
-	//	{
-	//		if (reply) Serial.println("SCAN::LINELENGTH::SET - Invalid command syntax!");
-	//	}
-	//}
+	else if (cmd == "SCAN::LINELENGTH::GET")
+	{
+		//Serial.print("LineLength is ");
+		Serial.println(ctrl->getLineSize());
+	}
+	else if (CheckSingleParameter(cmd, "SCAN::LINELENGTH::SET", idx, boolean, "SCAN::LINELENGTH::SET - Invalid command syntax!"))
+	{
+		if (reply)
+		{
+			Serial.print("Setting line length to ");
+			Serial.println(idx);
+		}
+		ctrl->setLineSize(idx);
+	}
 
 
 	//////////////
@@ -222,38 +201,6 @@ void loop()
 		}
 		ctrl->setStepSize(idx);
 	}
-	//else if (cmd.indexOf("SCAN::STEPSIZE::SET") == 0)
-	//{
-	//	// setting
-	//	bool ok = false;
-	//	String part;
-	//	int val = 0;
-	//	while (1)
-	//	{
-	//		int pos = cmd.indexOf(' ', pos);
-	//		if (pos == -1) break;
-	//		part = cmd.substring(pos + 1);
-	//		//Serial.println(part);
-	//		val = part.toInt();
-	//		if (val < 0) break;
-
-	//		ok = true;
-	//		break;
-	//	}
-	//	if (ok)
-	//	{
-	//		if (reply)
-	//		{
-	//			Serial.print("Setting step size to ");
-	//			Serial.println(val);
-	//		}
-	//		ctrl->setStepSize(val);
-	//	}
-	//	else
-	//	{
-	//		if (reply) Serial.println("SCAN::STEPSIZE::SET - Invalid command syntax!");
-	//	}
-	//}
 
 
 
@@ -278,91 +225,43 @@ void loop()
 	else if (CheckSingleParameter(cmd, "ECHO", idx, boolean, "ECHO - Invalid command syntax!"))
 	{
 		phone->echo = idx == 1;
-		//Serial.print("Echo is ");
-		//Serial.println(idx);
+		if (reply)
+		{
+			Serial.print("Echo is ");
+			Serial.println(phone->echo ? 1 : 0);
+		}
 	}
-	/*else if (cmd == "ECHO")
-	{
-		phone->echo = true;
-	}
-	else if (cmd == "NOECHO")
-	{
-		phone->echo = false;
-	}*/
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// ADC COMMANDS
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define ADCCOMMANDS
 #ifdef ADCCOMMANDS
 
-	else if (idx = cmd.indexOf("ADC") == 0)
+	else if (CheckSingleParameter(cmd, "ADCDIFF::GET", idx, boolean, "ADCDIFF::GET - Invalid command syntax!"))
 	{
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// GET
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		if (cmd.indexOf("::GET"))
+		uint16 = diff_adc.readADC_SingleEnded(idx - 1);
+		if (reply)
 		{
-			//Serial.println("Measuring ADC");
-			bool ok = false;
-			String channelPart;
-			int channel;
-			float value;
-			while (1)
-			{
-				String *parts;
-				//int num = splitString(cmd, ' ', parts);
-				//Serial.println("There were " + String(num) + " parts");
-				// extract channel
-				int pos = cmd.indexOf(' ', pos);
-				if (pos == -1) break;
-				channelPart = cmd.substring(pos + 1);
-				channel = channelPart.toInt();
-
-				// check range
-				if (channel < 1 || channel > 4)
-				{
-					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4 (for A, B, C or D)");
-					break;
-				}
-
-				ok = true;
-				break;
-			}
-
-			if (ok)
-			{
-
-				//long rand = random(0, dacMax);
-				//float rnd = 5.0F;
-				//rnd /= dacMax;
-				int16_t val;
-
-				// which adc?
-				if (cmd.indexOf("ADCDIFF::GET") == 0)
-				{
-					val = diff_adc.readADC_SingleEnded(channel + 1);
-					//Serial.print("Channel ");
-					//Serial.print(channel);
-					//Serial.print(" of diff_adc is ");
-				}
-				else if (cmd.indexOf("ADCSIG::GET") == 0)
-				{
-					val = sig_adc.readADC_SingleEnded(channel + 1);
-					//Serial.print("Channel ");
-					//Serial.print(channel);
-					//Serial.print(" of sig_adc is ");
-				}
-				Serial.println(val);
-
-
-
-			}
-			else {
-				Serial.println("AD...::GET - Invalid command syntax!");
-			}
+			Serial.print("Channel ");
+			Serial.print(idx - 1);
+			Serial.print(" is ");
+			Serial.println(idx);
 		}
-
+		Serial.println(uint16);
+	}
+	else if (CheckSingleParameter(cmd, "ADCSIG::GET", idx, boolean, "ADCSIG::GET - Invalid command syntax!"))
+	{
+		uint16 = diff_adc.readADC_SingleEnded(idx - 1);
+		if (reply)
+		{
+			Serial.print("Channel ");
+			Serial.print(idx - 1);
+			Serial.print(" is ");
+			Serial.println(idx);
+		}
+		Serial.println(uint16);
 	}
 
 #endif
@@ -370,6 +269,7 @@ void loop()
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// DAC COMMANDS
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define DACCOMMANDS
 #ifdef DACCOMMANDS
 
 	else if (cmd == "VCDAC::PRINT")
@@ -386,37 +286,16 @@ void loop()
 		vc_dac->Reset(AD569X_RST_MIDSCALE);
 		if (reply) Serial.println("Resetting Piezo DAC");
 	}
-	else if (cmd.indexOf("VCDAC::REFSET") == 0)
+	else if (CheckSingleParameter(cmd, "VCDAC::REFSET", idx, boolean, "VCDAC::REFSET - Invalid command syntax!"))
 	{
-		bool ok = false;
-		String part;
-		int val = 0;
-		while (1)
+		if (reply)
 		{
-			int pos = cmd.indexOf(' ', pos);
-			if (pos == -1) break;
-			part = cmd.substring(pos + 1);
-			Serial.println(part);
-			val = part.toInt();
-			if (val != 0 && val != 1) break;
-
-			ok = true;
-			break;
+			Serial.print("Turning internal reference ");
+			Serial.println(idx == 1 ? "on" : "off");
 		}
-		if (ok)
-		{
-			if (reply)
-			{
-				Serial.print("Turning internal reference ");
-				Serial.println(val == 1 ? "on" : "off");
-			}
-			vc_dac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
-		}
-		else
-		{
-			if (reply) Serial.println("VCDAC::REFSET - Invalid command syntax!");
-		}
+		vc_dac->InternalVoltageReference(idx == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
 	}
+
 	else
 	{
 		//////////////////////////////////////////////////////
@@ -552,57 +431,57 @@ void loop()
 		////////////////////////////////////////////
 		// SET THE STATE OF THE LDAC PIN
 		////////////////////////////////////////////
-		else if (idx = cmd.indexOf("LDAC::SET") == 0)
-		{
-			//Serial.println("DACC!!!");
-			bool ok = false;
-			String channelPart;
-			int state;
-			float value;
-			while (1)
-			{
-				String *parts;
-				//int num = splitString(cmd, ' ', parts);
-				//Serial.println("There were " + String(num) + " parts");
-				// extract channel
-				int pos = cmd.indexOf(' ', pos);
-				if (pos == -1) break;
-				channelPart = cmd.substring(pos + 1);
-				state = channelPart.toInt();
+		//else if (idx = cmd.indexOf("LDAC::SET") == 0)
+		//{
+		//	//Serial.println("DACC!!!");
+		//	bool ok = false;
+		//	String channelPart;
+		//	int state;
+		//	float value;
+		//	while (1)
+		//	{
+		//		String *parts;
+		//		//int num = splitString(cmd, ' ', parts);
+		//		//Serial.println("There were " + String(num) + " parts");
+		//		// extract channel
+		//		int pos = cmd.indexOf(' ', pos);
+		//		if (pos == -1) break;
+		//		channelPart = cmd.substring(pos + 1);
+		//		state = channelPart.toInt();
 
-				// check range
-				if (state != 0 && state != 1)
-				{
-					Serial.println("Must be 0 or 1");
-					break;
-				}
+		//		// check range
+		//		if (state != 0 && state != 1)
+		//		{
+		//			Serial.println("Must be 0 or 1");
+		//			break;
+		//		}
 
-				ok = true;
-				break;
-			}
+		//		ok = true;
+		//		break;
+		//	}
 
-			if (ok)
-			{
+		//	if (ok)
+		//	{
 
-				//long rand = random(0, dacMax);
-				//float rnd = 5.0F;
-				//rnd /= dacMax;
-				//rnd *= rand;
-				ADDAC::SetLDac(state == 1);
-				if (reply)
-				{
-					Serial.print("LDAC state was set to ");
-					Serial.println(state == 1 ? "ON" : "OFF");
-				}
+		//		//long rand = random(0, dacMax);
+		//		//float rnd = 5.0F;
+		//		//rnd /= dacMax;
+		//		//rnd *= rand;
+		//		ADDAC::SetLDac(state == 1);
+		//		if (reply)
+		//		{
+		//			Serial.print("LDAC state was set to ");
+		//			Serial.println(state == 1 ? "ON" : "OFF");
+		//		}
 
 
 
-			}
-			else {
-				if (reply) Serial.println("LDAC::SET - Invalid command syntax!");
-			}
+		//	}
+		//	else {
+		//		if (reply) Serial.println("LDAC::SET - Invalid command syntax!");
+		//	}
 
-		}
+		//}
 	}
 #endif
 
