@@ -180,6 +180,11 @@ void DAC_AD5696::InternalVoltageReference(unsigned char vRefMode)
 {
     SetInputRegister(AD569X_CMD(AD569X_CMD_INT_REF_SETUP) | 
                             vRefMode);
+	/*Wire.beginTransmission(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
+	Wire.write(B01111111);
+	Wire.write(0xFF);
+	Wire.write(0xFF);
+	Wire.endTransmission();*/
 }
 
 /***************************************************************************//**
@@ -308,8 +313,8 @@ int DAC_AD5696::SetOutput(uint8_t channel,
 	uint8_t lsb = value;
 	uint8_t msb = value >> 8;
 
-	Wire.beginTransmission(B00011000);  //12 + R/W 0
-	Wire.write(B00110000 | channel);  // set and update all DAC channels;
+	Wire.beginTransmission(12);
+	Wire.write(B00110000 | channel);  // set and update DAC channels;
 	Wire.write(lsb);  // set to half voltage
 	Wire.write(msb);
 	Wire.endTransmission();
