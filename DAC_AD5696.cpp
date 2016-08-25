@@ -303,22 +303,22 @@ float DAC_AD5696::SetVoltage(unsigned char channel,
 
 	uint16_t value = (outputVoltage / vRef) * (maxValueF);
 
-	Serial.println(value);
+	//Serial.println(value);
 
 
 	// need to shift it?
 	value = value << (16 - deviceBitsNumber);
 
-	Serial.println(value);
+	//Serial.println(value);
 
 	channel &= B00001111;  // smash any of the higher bits, not used here.
 	uint8_t lsb = value;
 	uint8_t msb = value >> 8;
 
-	Serial.println(msb);
+	/*Serial.println(msb);
 	Serial.println(lsb);
 	Serial.println(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
-	Serial.println(B00110000 | channel);
+	Serial.println(B00110000 | channel);*/
 
 	Wire.beginTransmission(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
 	Wire.write(B00110000 | channel);  // set and update DAC channels;

@@ -1,3 +1,4 @@
+//#include <Adafruit_ADS1015.h>
 #include "stdafx.h"
 #include "Scanner.h"
 #include "RTx.h"
@@ -15,9 +16,9 @@
 #define SAMPLE_SIZE 5   //Number of samples taken at each pixel. Median is taken as true value
 
 //Communication parameters
-#define BAUDRATE 9600   //Serial interfaces communication speed (bps)
+#define BAUDRATE 115200   //Serial interfaces communication speed (bps)
 
-
+bool reply = true;
 
 //int splitString(String str, char delimiter, String *out)
 //{
@@ -63,9 +64,11 @@
 
 /* Setup */
 Adafruit_ADS1015 adc;
+//Adafruit_ADS1015 diff_adc(49);
 RTx* phone = new RTx();
-DAC_AD5696* dac = new DAC_AD5696();
-PiezoDACController* ctrl = new PiezoDACController(dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
+DAC_AD5696* pdac = new DAC_AD5696();
+//DAC_AD5696* vcdac = new DAC_AD5696();
+PiezoDACController* ctrl = new PiezoDACController(pdac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
 SignalSampler* sampler = new SignalSampler(adc, SAMPLE_SIZE);
 Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 //unsigned char zchar = (unsigned char)0;
@@ -74,15 +77,15 @@ Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 
 //This function runs once, when the arduino starts
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(BAUDRATE);
 	Serial.print("Initialising I2C...");
 	unsigned char i2csetup = ADDAC::Setup(LDAC);
 	Serial.println(i2csetup == 1 ? "success!" : "failed!");
 
-	dac->Init(16, 0,0);
+	pdac->Init(10, 1, 1);
 
 	// turn internal reference off
-	dac->InternalVoltageReference(AD569X_INT_REF_OFF);
+	pdac->InternalVoltageReference(AD569X_INT_REF_OFF);
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -119,7 +122,7 @@ void loop()
 		int CUSTOM_LINE_LENGTH = Serial.parseInt();
 		int CUSTOM_SAMPLE_SIZE = Serial.parseInt();
      
-		ctrl = new PiezoDACController(dac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
+		ctrl = new PiezoDACController(pdac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
 		sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
 		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     
@@ -136,23 +139,82 @@ void loop()
 	{
 		Serial.println("PONG");
 	}
+
+
+	//else if (idx = cmd.indexOf("ADCDIFF::GET") == 0)
+	//{
+	//	//Serial.println("DACC!!!");
+	//	bool ok = false;
+	//	String channelPart;
+	//	int channel;
+	//	float value;
+	//	while (1)
+	//	{
+	//		String *parts;
+	//		//int num = splitString(cmd, ' ', parts);
+	//		//Serial.println("There were " + String(num) + " parts");
+	//		// extract channel
+	//		int pos = cmd.indexOf(' ', pos);
+	//		if (pos == -1) break;
+	//		channelPart = cmd.substring(pos + 1);
+	//		channel = channelPart.toInt();
+
+	//		// check range
+	//		if (channel < 1 || channel > 4)
+	//		{
+	//			Serial.println("Channel number must be 1, 2, 3 or 4 (for A, B, C or D)");
+	//			break;
+	//		}
+
+	//		ok = true;
+	//		break;
+	//	}
+
+	//	if (ok)
+	//	{
+
+	//		//long rand = random(0, dacMax);
+	//		//float rnd = 5.0F;
+	//		//rnd /= dacMax;
+	//		//rnd *= rand;
+	//		unsigned short val = pdac->ReadBack((unsigned char)channel);
+	//		Serial.print("Channel ");
+	//		Serial.print(channel);
+	//		Serial.print(" is set to ");
+	//		Serial.println(val);
+
+
+
+	//	}
+	//	else {
+	//		Serial.println("PDAC::GET - Invalid command syntax!");
+	//	}
+
+	//}
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// DAC COMMANDS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 	else if (cmd == "PDAC::PRINT")
 	{
 		Serial.print("Max value (u) = ");
-		Serial.println(dac->getMaxValueU());
+		Serial.println(pdac->getMaxValueU());
 		Serial.print("Max value (f) = ");
-		Serial.println(dac->getMaxValueF());
+		Serial.println(pdac->getMaxValueF());
 		Serial.print("Bits = ");
-		Serial.println(dac->getBits());
+		Serial.println(pdac->getBits());
 	}
 	else if (cmd == "PDAC::RESET")
 	{
-		dac->Reset(AD569X_RST_MIDSCALE);
-		Serial.println("Resetting Piezo DAC");
+		pdac->Reset(AD569X_RST_MIDSCALE);
+		if (reply) Serial.println("Resetting Piezo DAC");
 	}
 	else if (cmd.indexOf("PDAC::REFSET") == 0)
 	{
-		Serial.println("asdasd");
 		bool ok = false;
 		String part;
 		int val = 0;
@@ -170,13 +232,16 @@ void loop()
 		}
 		if (ok)
 		{
-			Serial.print("Turning internal reference ");
-			Serial.println(val == 1 ? "on" : "off");
-			dac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
+			if (reply)
+			{
+				Serial.print("Turning internal reference ");
+				Serial.println(val == 1 ? "on" : "off");
+			}
+			pdac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
 		}
 		else
 		{
-			Serial.println("PDAC::REFSET - Invalid command syntax!");
+			if (reply) Serial.println("PDAC::REFSET - Invalid command syntax!");
 		}
 	}
 	else
@@ -208,7 +273,7 @@ void loop()
 				// check range
 				if (channel < 1 || channel > 4)
 				{
-					Serial.println("Channel number must be 1, 2, 3 or 4");
+					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4");
 					break;
 				}
 
@@ -220,7 +285,7 @@ void loop()
 				// check range
 				if (value < 0.0f || value > 5.0f)
 				{
-					Serial.println("Channel value must be between 0.0 and 5.0");
+					if (reply) Serial.println("Channel value must be between 0.0 and 5.0");
 					break;
 				}
 
@@ -230,23 +295,26 @@ void loop()
 
 			if (ok)
 			{
-				Serial.print("Setting channel ");
-				Serial.print(channel);
-				Serial.print(" to ");
-				Serial.println(value);
+				if (reply)
+				{
+					Serial.print("Setting channel ");
+					Serial.print(channel);
+					Serial.print(" to ");
+					Serial.println(value);
+				}
 
 				//long rand = random(0, dacMax);
 				//float rnd = 5.0F;
 				//rnd /= dacMax;
 				//rnd *= rand;
-				dac->SetVoltage(channel, value, 5.0f);
+				pdac->SetVoltage(channel, value, 5.0f);
 				//dac->SetOutput(1U << (channel - 1), 
 
 
 
 			}
 			else {
-				Serial.println("Invalid command syntax!");
+				if (reply) Serial.println("Invalid command syntax!");
 			}
 
 		}
@@ -275,7 +343,7 @@ void loop()
 				// check range
 				if (channel < 1 || channel > 4)
 				{
-					Serial.println("Channel number must be 1, 2, 3 or 4");
+					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4");
 					break;
 				}
 
@@ -290,17 +358,20 @@ void loop()
 				//float rnd = 5.0F;
 				//rnd /= dacMax;
 				//rnd *= rand;
-				unsigned short val = dac->ReadBack((unsigned char)channel);
-				Serial.print("Channel ");
-				Serial.print(channel);
-				Serial.print(" is set to ");
-				Serial.println(val);
+				unsigned short val = pdac->ReadBack((unsigned char)channel);
+				if (reply)
+				{
+					Serial.print("Channel ");
+					Serial.print(channel);
+					Serial.print(" is set to ");
+					Serial.println(val);
+				}
 
 
 
 			}
 			else {
-				Serial.println("PDAC::GET - Invalid command syntax!");
+				if (reply) Serial.println("PDAC::GET - Invalid command syntax!");
 			}
 
 		}
@@ -345,14 +416,17 @@ void loop()
 				//rnd /= dacMax;
 				//rnd *= rand;
 				ADDAC::SetLDac(state == 1);
-				Serial.print("LDAC state was set to ");
-				Serial.println(state == 1 ? "ON" : "OFF");
+				if (reply)
+				{
+					Serial.print("LDAC state was set to ");
+					Serial.println(state == 1 ? "ON" : "OFF");
+				}
 
 
 
 			}
 			else {
-				Serial.println("LDAC::SET - Invalid command syntax!");
+				if (reply) Serial.println("LDAC::SET - Invalid command syntax!");
 			}
 
 		}

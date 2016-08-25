@@ -34,36 +34,36 @@ int RTx::sendData(int pixels[], int pixelCount){
 }
 
 //only send message if other side is ready for it
-void RTx::sendString(String message){
-  String cmd;
-  while (true){
-  cmd=listen();
-  if (cmd=="RDY"){break;}
-  else if (cmd=="DONE"){break;}
-  }
-  Serial.print(message);
-  Serial.println(';'); // Send ';' when all numbers are sent
+void RTx::sendString(String message) {
+	String cmd;
+	while (true) {
+		cmd = listen();
+		if (cmd == "RDY") { break; }
+		else if (cmd == "DONE") { break; }
+	}
+	Serial.print(message);
+	Serial.println(';'); // Send ';' when all numbers are sent
 }
 
 
 String RTx::listen() {
-  String retVal = ""; 
-  while (true){
-    if (Serial.available()) {
-       unsigned int t = micros();
-    while (micros() - t <= 100)
-  {
-    // Wait...
-  }      
-   //wait for entire serial to arrive
-      retVal = Serial.readStringUntil(';'); //stop at ;
-      //return input value
-      Serial.print(retVal); 
-      Serial.print(';');
-      Serial.flush();
-      break;
-  }
-}
-return retVal;
+	String retVal = "";
+	while (true) {
+		if (Serial.available()) {
+			unsigned int t = micros();
+			while (micros() - t <= 100)
+			{
+				// Wait...
+			}
+			//wait for entire serial to arrive
+			retVal = Serial.readStringUntil(';'); //stop at ;
+			//return input value
+			Serial.print(retVal);
+			Serial.print(';');
+			Serial.flush();
+			break;
+		}
+	}
+	return retVal;
 }
 
