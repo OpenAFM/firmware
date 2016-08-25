@@ -75,12 +75,11 @@ Scanner* scanner;// = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 //This function runs once, when the arduino starts
 void setup() {
 	Serial.begin(9600);
-	Serial.println("Initialising I2C...");
-	unsigned char i2csetup = 0;// ADDAC::Setup(LDAC);
+	Serial.print("Initialising I2C...");
+	unsigned char i2csetup = ADDAC::Setup(LDAC);
 	Serial.println(i2csetup == 1 ? "success!" : "failed!");
 
-	//dac->Init(0,0);
-	//Serial.flush();
+	dac->Init(0,0);
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -89,9 +88,6 @@ extern String const PARAM_LINE_LENGTH;
 void loop() 
 {
 	
-  Serial.println("Hello");
-  delay(500);
-  return;
 
 	String cmd = phone->listen();
 
