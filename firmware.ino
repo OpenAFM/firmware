@@ -75,7 +75,8 @@ bool CheckSingleParameter(String commandLine, String name, int &param, bool &ok,
 Adafruit_ADS1015 sig_adc(0x49);   // adc with raw signal input (A, B, C and D)
 Adafruit_ADS1015 diff_adc(0x48);   // adc with the sum and difference signals
 RTx* phone = new RTx();
-DAC_AD5696* vc_dac = new DAC_AD5696();
+DAC_AD5696* vc_dac = new DAC_AD5696();   // voice coil DAC
+DAC_AD5696* pz_dac = new DAC_AD5696();   // Piezo DAC
 //DAC_AD5696* vcdac = new DAC_AD5696();
 PiezoDACController* ctrl = new PiezoDACController(vc_dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
 SignalSampler* sampler = new SignalSampler(diff_adc, SAMPLE_SIZE);
@@ -90,9 +91,11 @@ void setup() {
 	Serial.println(i2csetup == 1 ? "success!" : "failed!");
 
 	vc_dac->Init(10, 1, 1);
+	pz_dac->Init(16, 0, 0);
 
 	// turn internal reference off
 	vc_dac->InternalVoltageReference(AD569X_INT_REF_OFF);
+	pz_dac->InternalVoltageReference(AD569X_INT_REF_OFF);
 
 	// start ADCs
 	diff_adc.begin();
@@ -103,7 +106,11 @@ extern String const PARAM_LINE_LENGTH;
 //This function keeps looping
 void loop()
 {
-
+	//delay(500);
+	//pz_dac->SetVoltage(15, 5.0, 5.0);
+	//delay(500);
+	//pz_dac->SetVoltage(15, 0.0, 5.0);
+	//return;
 
 	String cmd = phone->listen();
 
@@ -154,11 +161,11 @@ void loop()
 		scanner->stream();
 	}
 
-	else if (cmd == "SCAN::STARTINGXPLUS::GET")
+	else if (cmd == "STARTXPLUS::GET")
 	{
 		Serial.println(ctrl->startingXPlus);
 	}
-	else if (CheckSingleParameter(cmd, "SCAN::STARTINGXPLUS::SET", idx, boolean, "SCAN::STARTINGXPLUS - Invalid command syntax!"))
+	else if (CheckSingleParameter(cmd, "STARTXPLUS::SET", idx, boolean, "STARTXPLUS - Invalid command syntax!"))
 	{
 		Serial.print("Setting startingXPlus to ");
 		Serial.println(idx);
@@ -168,12 +175,12 @@ void loop()
 	////////////////
 	//// LINE LENGTH
 	////////////////
-	else if (cmd == "SCAN::LINELENGTH::GET")
+	else if (cmd == "LINELENGTH::GET")
 	{
 		//Serial.print("LineLength is ");
 		Serial.println(ctrl->getLineSize());
 	}
-	else if (CheckSingleParameter(cmd, "SCAN::LINELENGTH::SET", idx, boolean, "SCAN::LINELENGTH::SET - Invalid command syntax!"))
+	else if (CheckSingleParameter(cmd, "LINELENGTH::SET", idx, boolean, "SCAN::LINELENGTH::SET - Invalid command syntax!"))
 	{
 		if (reply)
 		{
@@ -187,12 +194,12 @@ void loop()
 	//////////////
 	// STEP SIZE
 	//////////////
-	else if (cmd == "SCAN::STEPSIZE::GET")
+	else if (cmd == "STEPSIZE::GET")
 	{
 		//Serial.print("LineLength is ");
 		Serial.println(ctrl->getStepSize());
 	}
-	else if (CheckSingleParameter(cmd, "SCAN::STEPSIZE::SET", idx, boolean, "SCAN::STEPSIZE::SET - Invalid command syntax!"))
+	else if (CheckSingleParameter(cmd, "STEPSIZE::SET", idx, boolean, "STEPSIZE::SET - Invalid command syntax!"))
 	{
 		if (reply)
 		{
@@ -202,6 +209,23 @@ void loop()
 		ctrl->setStepSize(idx);
 	}
 
+	//////////////
+	// SAMPLE SIZE
+	//////////////
+	else if (cmd == "SAMPLESIZE::GET")
+	{
+		//Serial.print("LineLength is ");
+		Serial.println(sampler->getSampleSize());
+	}
+	else if (CheckSingleParameter(cmd, "SAMPLESIZE::SET", idx, boolean, "SAMPLESIZE::SET - Invalid command syntax!"))
+	{
+		if (reply)
+		{
+			Serial.print("Setting step size to ");
+			Serial.println(idx);
+		}
+		sampler->setSampleSize(idx);
+	}
 
 
 	else if (cmd == "ERROR")
@@ -222,7 +246,7 @@ void loop()
 	{
 		reply = false;
 	}
-	else if (CheckSingleParameter(cmd, "ECHO", idx, boolean, "ECHO - Invalid command syntax!"))
+	else if (CheckSingleParameter(cmd, "ECHO::SET", idx, boolean, "ECHO - Invalid command syntax!"))
 	{
 		phone->echo = idx == 1;
 		if (reply)
@@ -236,7 +260,7 @@ void loop()
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// ADC COMMANDS
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define ADCCOMMANDS
+//#define ADCCOMMANDS
 #ifdef ADCCOMMANDS
 
 	else if (CheckSingleParameter(cmd, "ADCDIFF::GET", idx, boolean, "ADCDIFF::GET - Invalid command syntax!"))
@@ -302,7 +326,7 @@ void loop()
 		// SET DAC VOLTAGE (FOR DEBUG)
 		//////////////////////////////////////////////////////
 
-		if (idx = cmd.indexOf("VCDAC::SET") == 0)
+		if (idx = cmd.indexOf("DAC::SET") == 2)   // will be either VCDAC::SET...  or PZDAC::SET...
 		{
 			//Serial.println("DACC!!!");
 			bool ok = false;
@@ -310,6 +334,7 @@ void loop()
 			String valuePart;
 			int channel;
 			float value;
+			boolean = cmd[0] == 'V';  // if cmd[0] is V, it must be VCDAC...
 			while (1)
 			{
 				String *parts;
@@ -351,6 +376,8 @@ void loop()
 				{
 					Serial.print("Setting channel ");
 					Serial.print(channel);
+					Serial.print(" of ");
+					Serial.print(boolean ? "VCDAC" : "PZDAC");
 					Serial.print(" to ");
 					Serial.println(value);
 				}
@@ -359,7 +386,15 @@ void loop()
 				//float rnd = 5.0F;
 				//rnd /= dacMax;
 				//rnd *= rand;
-				vc_dac->SetVoltage(channel, value, 5.0f);
+
+				// which dac?
+				if (boolean)
+				{
+					vc_dac->SetVoltage(channel, value, 5.0f);
+				} else 
+				{
+					pz_dac->SetVoltage(channel, value, 5.0f);
+				}
 				//dac->SetOutput(1U << (channel - 1), 
 
 
