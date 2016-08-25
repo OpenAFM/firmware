@@ -3,6 +3,8 @@
 // Date 20 08 15
 // Lego2nano
 
+#include "stdafx.h"
+
 #ifndef _RTX_h
 #define _RTX_h
 

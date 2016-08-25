@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <Wire.h>
 #include "ADDAC.h"
 #include "DAC_AD5696.h"
@@ -6,6 +7,8 @@
 // Author A Michel
 // Date 25/08/15
 // lego2nano 2015
+
+//#define DEBUG
 
 #ifndef _PIEZODACCONTROLLER_h
 #define _PIEZODACCONTROLLER_h
@@ -119,6 +122,7 @@ public:
 
 	// return line size.
 	int getLineSize();
+	void setLineSize(int lineSize) { this->lineSize = lineSize; }
 
 	// move to the first pixel of the new line.
 	unsigned int nextLine();
@@ -131,6 +135,9 @@ public:
 
 	// invert channel A(X) & B(Y)
 	void invert();
+
+	int getStepSize() { return stepSize; }
+	void setStepSize(int stepSize) { this->stepSize = stepSize; }
 };
 
 #endif

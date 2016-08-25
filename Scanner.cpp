@@ -1,3 +1,5 @@
+#define DEBUG
+
 // Author A Michel
 // Date 20 08 15
 // Lego2Nano 2015
@@ -68,6 +70,11 @@ int Scanner::start() {
 	// interates over y-axis calling ctrl.nextLine() 
 	for (int i = 0; i < lineLength; i++) {
 
+#ifdef DEBUG
+		Serial.print("Line ");
+		Serial.println(i);
+#endif
+
 		// scans one line (trace & re-trace)
 		scanLine();
 
@@ -98,6 +105,10 @@ int Scanner::stream() {
 
 // stop the scanning process and resets the parameters.
 int Scanner::stop() {
+
+#ifdef DEBUG
+	Serial.println("Scan complete");
+#endif
 
 	// calculate lapsed time
 	endTime = millis() - startTime;

@@ -12,25 +12,32 @@ extern const int CHANNEL_D = 3;
 
 // constructor
 PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength, int ldacPin, bool useRNG) {
-  this->stepSize = stepSize;
-  this->lineSize = lineLength;
+	this->stepSize = stepSize;
+	this->lineSize = lineLength;
 
-  this->dac = dac;
+	this->dac = dac;
 
-  this->useRNG = useRNG;
+	this->useRNG = useRNG;
 
-  this->currentStep = 0;
-  this->currentX = 0;
-  this->currentY = 0;
-  this->currentZ = 0;
+	this->currentStep = 0;
+	this->currentX = 0;
+	this->currentY = 0;
+	this->currentZ = 0;
 
-  startingX = 0;
-  startingY = 0;
+	startingXPlus = 0;
+	startingYPlus = 0;
+	startingXMinus = 0;
+	startingYMinus = 0;
 
-  // should start with DACs at mid range
-  SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
+	currentXPlus = 0;
+	currentYPlus = 0;
+	currentXMinus = 0;
+	currentYMinus = 0;
 
-  invertChannels = false;
+	// should start with DACs at mid range
+	SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
+
+	invertChannels = false;
 }
 
 // destructor.
@@ -62,6 +69,10 @@ const byte mask = 128;
 int PiezoDACController::SetDACOutput(uint8_t channels, uint16_t value)
 {
 	//dac->SetOutput(channels, value);
+	Serial.print("Setting DAC channel ");
+	Serial.print(channels);
+	Serial.print(" to ");
+	Serial.println(value);
 
 	if (channels & X_PLUS) currentXPlus = value;
 	if (channels & X_MINUS) currentXMinus = value;
@@ -156,37 +167,37 @@ int PiezoDACController::GotoCoordinates(uint16_t x, uint16_t y)
 
 // reset coordinates to startingX and startingY
 unsigned int PiezoDACController::reset() {
-  currentStep = 0;
-  //currentX = 0;
-  //currentY = 0;
-  currentZ = 0;
-  setCoordinates();
-  GotoCoordinates(0, 0);
-  //go(CHANNEL_A, currentX);
-  //go(CHANNEL_B, currentY);
-  return currentStep;
+	currentStep = 0;
+	//currentX = 0;
+	//currentY = 0;
+	currentZ = 0;
+	//setCoordinates();
+	GotoCoordinates(0, 0);
+	//go(CHANNEL_A, currentX);
+	//go(CHANNEL_B, currentY);
+	return currentStep;
 }
 
 // move to beginning of next line.
 unsigned int PiezoDACController::nextLine() {
-  //int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
-  //currentStep += delta;
-  //setCoordinates();
-  //go(CHANNEL_A, currentX);
-  //go(CHANNEL_B, currentY);
+	//int delta = (((currentStep / lineSize) + 1) * lineSize) - currentStep;
+	//currentStep += delta;
+	//setCoordinates();
+	//go(CHANNEL_A, currentX);
+	//go(CHANNEL_B, currentY);
 	GotoCoordinates(0, currentY + 1);
-  return currentStep;
+	return currentStep;
 }
 
 // go to end of current line
 unsigned int PiezoDACController::eol() {
-  //nextLine();
-  //currentStep--;
-  //setCoordinates();
-  //go(CHANNEL_A, currentX);
-  //go(CHANNEL_B, currentY);
-  GotoCoordinates(currentX, lineSize);
-  return currentStep;
+	//nextLine();
+	//currentStep--;
+	//setCoordinates();
+	//go(CHANNEL_A, currentX);
+	//go(CHANNEL_B, currentY);
+	GotoCoordinates(currentX, lineSize);
+	return currentStep;
 }
 
 // set coordinates relative to currentStep

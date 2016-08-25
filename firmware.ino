@@ -71,9 +71,7 @@ DAC_AD5696* vc_dac = new DAC_AD5696();
 PiezoDACController* ctrl = new PiezoDACController(vc_dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
 SignalSampler* sampler = new SignalSampler(diff_adc, SAMPLE_SIZE);
 Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
-//unsigned char zchar = (unsigned char)0;
 
-//long dacMax = (long)5 * (long)65535;
 
 //This function runs once, when the arduino starts
 void setup() {
@@ -94,23 +92,23 @@ void setup() {
 extern String const PARAM_LINE_LENGTH;
 
 //This function keeps looping
-void loop() 
+void loop()
 {
-	
+
 
 	String cmd = phone->listen();
 
 	//delay(1);
-  int idx;
+	int idx;
 
-  //idx = cmd.indexOf("VCDAC::REFSET");
-  //Serial.println(idx);
+	//idx = cmd.indexOf("VCDAC::REFSET");
+	//Serial.println(idx);
 
-   /*
-    * Get command over serial
-    * VCDAC::SET <x> <y>  
-    *   Set the channel <x> voltage of the piezo DAC to <y>
-    */
+	 /*
+	  * Get command over serial
+	  * VCDAC::SET <x> <y>
+	  *   Set the channel <x> voltage of the piezo DAC to <y>
+	  */
 	if (cmd == "GO")
 	{
 		scanner->start();
@@ -120,27 +118,141 @@ void loop()
 		delete ctrl;
 		delete sampler;
 		delete scanner;
-      
+
 		int CUSTOM_STEPSIZE = Serial.parseInt();
 		int CUSTOM_LINE_LENGTH = Serial.parseInt();
 		int CUSTOM_SAMPLE_SIZE = Serial.parseInt();
-     
+
 		ctrl = new PiezoDACController(vc_dac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
 		sampler = new SignalSampler(sig_adc, CUSTOM_SAMPLE_SIZE);
-		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
-    
+		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);
+
+		if (reply)
+		{
+			Serial.print("Setup with STEP_SIZE= ");
+			Serial.print(CUSTOM_STEPSIZE);
+			Serial.print(", CUSTOM_LINE_LENGTH= ");
+			Serial.print(CUSTOM_LINE_LENGTH);
+			Serial.print(" CUSTOM_SAMPLE_SIZE= ");
+			Serial.println(CUSTOM_SAMPLE_SIZE);
+		}
+
 	}
 	else if (cmd == "STREAM")
 	{
 		scanner->stream();
 	}
+
+
+	//////////////
+	// STEP SIZE
+	//////////////
+	else if (cmd == "LINELENGTH::GET")
+	{
+		Serial.println(ctrl->getLineSize());
+	}
+	else if (cmd.indexOf("LINELENGTH::SET") == 0)
+	{
+		// setting
+		bool ok = false;
+		String part;
+		int val = 0;
+		while (1)
+		{
+			int pos = cmd.indexOf(' ', pos);
+			if (pos == -1) break;
+			part = cmd.substring(pos + 1);
+			//Serial.println(part);
+			val = part.toInt();
+			if (val < 0) break;
+
+			ok = true;
+			break;
+		}
+		if (ok)
+		{
+			if (reply)
+			{
+				Serial.print("Setting line length to ");
+				Serial.println(val);
+			}
+			ctrl->setLineSize(val);
+		}
+		else
+		{
+			if (reply) Serial.println("LINELENGTH::SET - Invalid command syntax!");
+		}
+	}
+
+
+	//////////////
+	// STEP SIZE
+	//////////////
+	else if (cmd == "STEPSIZE::GET")
+	{
+		//Serial.print("LineLength is ");
+		Serial.println(ctrl->getStepSize());
+	}
+	else if (cmd.indexOf("STEPSIZE::SET") == 0)
+	{
+		// setting
+		bool ok = false;
+		String part;
+		int val = 0;
+		while (1)
+		{
+			int pos = cmd.indexOf(' ', pos);
+			if (pos == -1) break;
+			part = cmd.substring(pos + 1);
+			//Serial.println(part);
+			val = part.toInt();
+			if (val < 0) break;
+
+			ok = true;
+			break;
+		}
+		if (ok)
+		{
+			if (reply)
+			{
+				Serial.print("Setting step size to ");
+				Serial.println(val);
+			}
+			ctrl->setStepSize(val);
+		}
+		else
+		{
+			if (reply) Serial.println("STEPSIZE::SET - Invalid command syntax!");
+		}
+	}
+
+
+
 	else if (cmd == "ERROR")
 	{
 
 	}
+
+
 	else if (cmd == "PING")
 	{
 		Serial.println("PONG");
+	}
+	else if (cmd == "REPLY")
+	{
+		reply = true;
+	}
+	else if (cmd == "NOREPLY")
+	{
+		reply = false;
+	}
+	else if (cmd == "ECHO")
+	{
+		phone->echo = true;
+	}
+	else if (cmd == "NOECHO")
+	{
+		phone->echo = false;
 	}
 
 
@@ -155,7 +267,7 @@ void loop()
 		/// GET
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		if (cmd.indexOf("::GET"))
-		{			
+		{
 			//Serial.println("Measuring ADC");
 			bool ok = false;
 			String channelPart;
@@ -248,7 +360,7 @@ void loop()
 		{
 			int pos = cmd.indexOf(' ', pos);
 			if (pos == -1) break;
-			part = cmd.substring(pos+1);
+			part = cmd.substring(pos + 1);
 			Serial.println(part);
 			val = part.toInt();
 			if (val != 0 && val != 1) break;
@@ -363,7 +475,7 @@ void loop()
 				// extract channel
 				int pos = cmd.indexOf(' ', pos);
 				if (pos == -1) break;
-				channelPart = cmd.substring(pos+1);
+				channelPart = cmd.substring(pos + 1);
 				channel = channelPart.toInt();
 
 				// check range
@@ -457,6 +569,6 @@ void loop()
 
 		}
 	}
- 
+
 }
 
