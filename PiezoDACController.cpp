@@ -206,7 +206,7 @@ int PiezoDACController::setCoordinates() {
 unsigned int PiezoDACController::increaseVoltage() {
 
   // step fwd
-  currentStep += stepSize;
+  //currentStep += stepSize;
   
   //setCoordinates();
   
