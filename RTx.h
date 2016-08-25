@@ -3,6 +3,8 @@
 // Date 20 08 15
 // Lego2nano
 
+#include "stdafx.h"
+
 #ifndef _RTX_h
 #define _RTX_h
 
@@ -26,6 +28,7 @@ class RTx
 	int sendData(int[], int);
     void sendString(String);
 	String listen();
+	bool echo;
 };
 
 

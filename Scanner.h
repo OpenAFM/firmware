@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 // Scanner.h
 // Author A Michel
 // Date 25/08/15
@@ -21,7 +23,7 @@ line count for information purposes.
 #include "WProgram.h"
 #endif
 
-#include "DACController.h"
+#include "PiezoDACController.h"
 #include "SignalSampler.h"
 #include "RTx.h"
 
@@ -33,7 +35,7 @@ class Scanner
 
 private:
 	// DAC controller
-	DACController controller;
+	PiezoDACController controller;
 	// Sampler
 	SignalSampler sampler;
 	// RTx (com)
@@ -63,18 +65,18 @@ protected:
 
 public:
 	// Constructor
-	Scanner(const DACController&, const SignalSampler&, const RTx&, const int lineLength);
+	Scanner(const PiezoDACController&, const SignalSampler&, const RTx&, const int lineLength);
 	// destructor
 	~Scanner();
 	// resets all parameters. Should call controller.reset(), sampler.reset() and rtx.reset()
 	void reset();
-	
+
 	// start scanning sequential scan
 	int start();
 	// stops the scanning processs
 	int stop();
-  // starts sending continous stream of data
-  int stream();
+	// starts sending continous stream of data
+	int stream();
 
 	// update a param value
 	void setParam(String param, String value);

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SignalSampler.h"
 
 SignalSampler::SignalSampler(void) {
@@ -5,17 +6,16 @@ SignalSampler::SignalSampler(void) {
 	//Serial.println("SignalSampler(void);");
 }
 
-SignalSampler::SignalSampler(int inputAPin, int inputBPin, int sampleSize) {
-	this->init(inputAPin, inputBPin, sampleSize);
-//analogReference(EXTERNAL); //this scales the input by the reference pin of the arduino
+SignalSampler::SignalSampler(Adafruit_ADS1015& adc, int sampleSize) : adc(adc) {
+	this->init(sampleSize);
+//this scales the input by the reference pin of the arduino
 //Serial.println("SignalSampler(args);");
 }
 
 SignalSampler::~SignalSampler() {}
 
-int SignalSampler::init(int inputAPin, int inputBPin, int sampleSize) {
-	this->inputApin = inputAPin;
-	this->inputBpin = inputBPin;
+int SignalSampler::init(int sampleSize) {
+	adc.begin();
 	this->sampleSize = sampleSize;
 }
 
@@ -31,9 +31,10 @@ int SignalSampler::detectPixel()
 
 	for (int i = 0; i < sampleSize; i++){
 		// get aSignalValue, bSignalValue and add them
-		aSignalValue = analogRead(inputApin);
-		bSignalValue = analogRead(inputBpin);
-		temp = aSignalValue + bSignalValue;
+		aSignalValue = adc.readADC_SingleEnded(0);
+		bSignalValue = adc.readADC_SingleEnded(1);
+   
+		temp = aSignalValue+bSignalValue;
 		// insert sorting the sum array
 		j = i-1;
 		while(j >= 0 && temp < sumSignalValue[j]){
@@ -51,5 +52,6 @@ int SignalSampler::detectPixel()
 int SignalSampler::reset() {
 	return 0;
 }
+
 
 
