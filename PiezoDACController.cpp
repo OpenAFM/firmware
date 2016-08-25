@@ -201,18 +201,18 @@ unsigned int PiezoDACController::eol() {
 	return currentStep;
 }
 
-// set coordinates relative to currentStep
-int PiezoDACController::setCoordinates() {
-	currentX = currentStep % lineSize;
-	currentY = currentStep / lineSize;
-
-	if (invertChannels) {
-		int temp = currentX;
-		currentX = currentY;
-		currentY = temp;
-	}
-	return 0;
-}
+//// set coordinates relative to currentStep
+//int PiezoDACController::setCoordinates() {
+//	currentX = currentStep % lineSize;
+//	currentY = currentStep / lineSize;
+//
+//	if (invertChannels) {
+//		int temp = currentX;
+//		currentX = currentY;
+//		currentY = temp;
+//	}
+//	return 0;
+//}
 
 // increase voltage
 unsigned int PiezoDACController::increaseVoltage() {

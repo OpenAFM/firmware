@@ -61,8 +61,8 @@ private:
 	// each pixel has a unique x,yi position.
 	unsigned int currentStep;
 
-	// set the x & y coordinates
-	int setCoordinates();
+	//// set the x & y coordinates
+	//int setCoordinates();
 
 	// current position relative to origin (0,0)
 	int currentX;
