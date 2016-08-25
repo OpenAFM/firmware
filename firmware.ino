@@ -4,6 +4,10 @@
 #include "RTx.h"
 #include "DAC_AD5696.h"
 
+
+// commands
+//#define ADCCOMMANDS
+
 /* Pin Definitions */
 
 //Pins for DAC (tlc5620)
@@ -20,46 +24,51 @@
 
 bool reply = true;
 
-//int splitString(String str, char delimiter, String *out)
-//{
-//    int len = str.length();
-//    int pos = 0;
-//    int pos2 = 0;
-//    int count = 0;
-//
-//	// how many delimiters in string?
-//	int numParts = 0;
-//	for (int i = 0; i < len; i++)
-//	{
-//		if (str[i] == delimiter) numParts++;
-//	}
-//	numParts += 1;  // 1 delimiter means 2 parts
-//	out = new String[numParts];
-//
-//	for (int i = 0; i < numParts; i++)
-//    {
-//      // find the next delimiter
-//      pos2 = str.indexOf(delimiter, pos);
-//
-//      // ended?
-//	  if (pos2 == -1)
-//	  {
-//		  String part = str.substring(pos);
-//		  out[i] = part;
-//		  break;
-//	  }
-//	  else
-//	  {
-//		  // extract the string
-//		  String part = str.substring(pos, pos2);
-//		  out[i] = part;
-//	  }
-//
-//	  pos = pos2 + 1;
-//    }
-//	return numParts;
-//}
 
+/*!
+	Check <commandLine> for something of the form "<name> <number>"
+	If it is found, extract the <numer> and put it in <param>, and return true
+*/
+bool CheckSingleParameter(String commandLine, String name, int &param, bool &ok, String errorMessage)
+{
+	Serial.println(commandLine);
+	Serial.println(name);
+	Serial.println(commandLine.indexOf(name));
+	if (commandLine.indexOf(name) == 0)
+	{
+		Serial.println("Found....");
+		// setting
+		bool ok = false;
+		String part;
+		int val = 0;
+		while (1)
+		{
+			int pos = commandLine.indexOf(' ', pos);
+			if (pos == -1) break;
+			part = commandLine.substring(pos + 1);
+			//Serial.println(part);
+			val = part.toInt();
+			if (val < 0) break;
+
+			ok = true;
+			break;
+		}
+
+		if (ok)
+		{
+			Serial.println("OK");
+			param = val;
+			Serial.println(param);
+		}
+		else
+		{
+			if (reply) Serial.println(errorMessage);
+		}
+
+		return true;
+	}
+	return false;
+}
 
 
 /* Setup */
@@ -100,6 +109,7 @@ void loop()
 
 	//delay(1);
 	int idx;
+	bool boolean;
 
 	//idx = cmd.indexOf("VCDAC::REFSET");
 	//Serial.println(idx);
@@ -143,88 +153,107 @@ void loop()
 		scanner->stream();
 	}
 
+	else if (cmd == "SCAN::STARTINGXPLUS::GET")
+	{
+		Serial.println(ctrl->startingXPlus);
+	}
+	else if (CheckSingleParameter(cmd, "SCAN::STARTINGXPLUS::SET", idx, boolean, "SCAN::STARTINGXPLUS - Invalid command syntax!"))
+	{
+		Serial.print("Setting startingXPlus to ");
+		Serial.println(idx);
+	}
+
+
+	////////////////
+	//// LINE LENGTH
+	////////////////
+	//else if (cmd == "SCAN::LINELENGTH::GET")
+	//{
+	//	Serial.println(ctrl->getLineSize());
+	//}
+	//else if (cmd.indexOf("SCAN::LINELENGTH::SET") == 0)
+	//{
+	//	// setting
+	//	bool ok = false;
+	//	String part;
+	//	int val = 0;
+	//	while (1)
+	//	{
+	//		int pos = cmd.indexOf(' ', pos);
+	//		if (pos == -1) break;
+	//		part = cmd.substring(pos + 1);
+	//		//Serial.println(part);
+	//		val = part.toInt();
+	//		if (val < 0) break;
+
+	//		ok = true;
+	//		break;
+	//	}
+	//	if (ok)
+	//	{
+	//		if (reply)
+	//		{
+	//			Serial.print("Setting line length to ");
+	//			Serial.println(val);
+	//		}
+	//		ctrl->setLineSize(val);
+	//	}
+	//	else
+	//	{
+	//		if (reply) Serial.println("SCAN::LINELENGTH::SET - Invalid command syntax!");
+	//	}
+	//}
+
 
 	//////////////
 	// STEP SIZE
 	//////////////
-	else if (cmd == "LINELENGTH::GET")
-	{
-		Serial.println(ctrl->getLineSize());
-	}
-	else if (cmd.indexOf("LINELENGTH::SET") == 0)
-	{
-		// setting
-		bool ok = false;
-		String part;
-		int val = 0;
-		while (1)
-		{
-			int pos = cmd.indexOf(' ', pos);
-			if (pos == -1) break;
-			part = cmd.substring(pos + 1);
-			//Serial.println(part);
-			val = part.toInt();
-			if (val < 0) break;
-
-			ok = true;
-			break;
-		}
-		if (ok)
-		{
-			if (reply)
-			{
-				Serial.print("Setting line length to ");
-				Serial.println(val);
-			}
-			ctrl->setLineSize(val);
-		}
-		else
-		{
-			if (reply) Serial.println("LINELENGTH::SET - Invalid command syntax!");
-		}
-	}
-
-
-	//////////////
-	// STEP SIZE
-	//////////////
-	else if (cmd == "STEPSIZE::GET")
+	else if (cmd == "SCAN::STEPSIZE::GET")
 	{
 		//Serial.print("LineLength is ");
 		Serial.println(ctrl->getStepSize());
 	}
-	else if (cmd.indexOf("STEPSIZE::SET") == 0)
+	else if (CheckSingleParameter(cmd, "SCAN::STEPSIZE::SET", idx, boolean, "SCAN::STEPSIZE::SET - Invalid command syntax!"))
 	{
-		// setting
-		bool ok = false;
-		String part;
-		int val = 0;
-		while (1)
+		if (reply)
 		{
-			int pos = cmd.indexOf(' ', pos);
-			if (pos == -1) break;
-			part = cmd.substring(pos + 1);
-			//Serial.println(part);
-			val = part.toInt();
-			if (val < 0) break;
-
-			ok = true;
-			break;
+			Serial.print("Setting step size to ");
+			Serial.println(idx);
 		}
-		if (ok)
-		{
-			if (reply)
-			{
-				Serial.print("Setting step size to ");
-				Serial.println(val);
-			}
-			ctrl->setStepSize(val);
-		}
-		else
-		{
-			if (reply) Serial.println("STEPSIZE::SET - Invalid command syntax!");
-		}
+		ctrl->setStepSize(idx);
 	}
+	//else if (cmd.indexOf("SCAN::STEPSIZE::SET") == 0)
+	//{
+	//	// setting
+	//	bool ok = false;
+	//	String part;
+	//	int val = 0;
+	//	while (1)
+	//	{
+	//		int pos = cmd.indexOf(' ', pos);
+	//		if (pos == -1) break;
+	//		part = cmd.substring(pos + 1);
+	//		//Serial.println(part);
+	//		val = part.toInt();
+	//		if (val < 0) break;
+
+	//		ok = true;
+	//		break;
+	//	}
+	//	if (ok)
+	//	{
+	//		if (reply)
+	//		{
+	//			Serial.print("Setting step size to ");
+	//			Serial.println(val);
+	//		}
+	//		ctrl->setStepSize(val);
+	//	}
+	//	else
+	//	{
+	//		if (reply) Serial.println("SCAN::STEPSIZE::SET - Invalid command syntax!");
+	//	}
+	//}
 
 
 
@@ -246,20 +275,26 @@ void loop()
 	{
 		reply = false;
 	}
-	else if (cmd == "ECHO")
+	else if (CheckSingleParameter(cmd, "ECHO", idx, boolean, "ECHO - Invalid command syntax!"))
+	{
+		phone->echo = idx == 1;
+		//Serial.print("Echo is ");
+		//Serial.println(idx);
+	}
+	/*else if (cmd == "ECHO")
 	{
 		phone->echo = true;
 	}
 	else if (cmd == "NOECHO")
 	{
 		phone->echo = false;
-	}
+	}*/
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// ADC COMMANDS
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef ADCCOMMANDS
 
 	else if (idx = cmd.indexOf("ADC") == 0)
 	{
@@ -330,12 +365,12 @@ void loop()
 
 	}
 
-
+#endif
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// DAC COMMANDS
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+#ifdef DACCOMMANDS
 
 	else if (cmd == "VCDAC::PRINT")
 	{
@@ -569,6 +604,7 @@ void loop()
 
 		}
 	}
+#endif
 
 }
 

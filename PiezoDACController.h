@@ -69,11 +69,6 @@ private:
 	int currentY;
 	int currentZ;
 
-	// the starting DAC output values (values from 0 to 65535)
-	uint16_t startingXPlus;
-	uint16_t startingXMinus;
-	uint16_t startingYPlus;
-	uint16_t startingYMinus;
 
 	// the current DAC output values (values from 0 to 65535)
 	uint16_t currentXPlus;
@@ -102,6 +97,14 @@ private:
 	int SetDACOutput(uint8_t channels, uint16_t value);
 
 public:
+
+	// the starting DAC output values (values from 0 to 65535)
+	uint16_t startingXPlus;
+	uint16_t startingXMinus;
+	uint16_t startingYPlus;
+	uint16_t startingYMinus;
+
+
 	// constructor
 	PiezoDACController(ADDAC *dac, int, int, int, bool);
 	
@@ -138,6 +141,10 @@ public:
 
 	int getStepSize() { return stepSize; }
 	void setStepSize(int stepSize) { this->stepSize = stepSize; }
+
+	int getCurrentX() { return currentX; }
+	int getCurrentY() { return currentY; }
+	int getCurrentZ() { return currentZ; }
 };
 
 #endif

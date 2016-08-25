@@ -24,10 +24,11 @@ PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength,
 	this->currentY = 0;
 	this->currentZ = 0;
 
-	startingXPlus = 0;
-	startingYPlus = 0;
-	startingXMinus = 0;
-	startingYMinus = 0;
+	uint16_t half = 0x7FFF;
+	startingXPlus = half;
+	startingYPlus = half;
+	startingXMinus = half;
+	startingYMinus = half;
 
 	currentXPlus = 0;
 	currentYPlus = 0;
