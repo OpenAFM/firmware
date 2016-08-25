@@ -26,6 +26,7 @@ class RTx
 	int sendData(int[], int);
     void sendString(String);
 	String listen();
+	bool echo;
 };
 
 

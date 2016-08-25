@@ -3,6 +3,7 @@
 RTx::RTx() {
 	this->inputCount = 0;
 	this->outputCount = 0;
+	echo = true;
 }
 
 void RTx::reset() {
@@ -58,8 +59,11 @@ String RTx::listen() {
 			//wait for entire serial to arrive
 			retVal = Serial.readStringUntil(';'); //stop at ;
 			//return input value
-			Serial.print(retVal);
-			Serial.print(';');
+			if (echo)
+			{
+				Serial.print(retVal);
+				Serial.print(';');
+			}
 			Serial.flush();
 			break;
 		}

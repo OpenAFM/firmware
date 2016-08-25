@@ -16,7 +16,7 @@
 #define SAMPLE_SIZE 5   //Number of samples taken at each pixel. Median is taken as true value
 
 //Communication parameters
-#define BAUDRATE 115200   //Serial interfaces communication speed (bps)
+#define BAUDRATE 250000   //Serial interfaces communication speed (bps)
 
 bool reply = true;
 
@@ -63,13 +63,13 @@ bool reply = true;
 
 
 /* Setup */
-Adafruit_ADS1015 adc;
-//Adafruit_ADS1015 diff_adc(49);
+Adafruit_ADS1015 sig_adc(0x49);   // adc with raw signal input (A, B, C and D)
+Adafruit_ADS1015 diff_adc(0x48);   // adc with the sum and difference signals
 RTx* phone = new RTx();
-DAC_AD5696* pdac = new DAC_AD5696();
+DAC_AD5696* vc_dac = new DAC_AD5696();
 //DAC_AD5696* vcdac = new DAC_AD5696();
-PiezoDACController* ctrl = new PiezoDACController(pdac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
-SignalSampler* sampler = new SignalSampler(adc, SAMPLE_SIZE);
+PiezoDACController* ctrl = new PiezoDACController(vc_dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
+SignalSampler* sampler;// = new SignalSampler(adc, SAMPLE_SIZE);
 Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 //unsigned char zchar = (unsigned char)0;
 
@@ -82,10 +82,13 @@ void setup() {
 	unsigned char i2csetup = ADDAC::Setup(LDAC);
 	Serial.println(i2csetup == 1 ? "success!" : "failed!");
 
-	pdac->Init(10, 1, 1);
+	vc_dac->Init(10, 1, 1);
 
 	// turn internal reference off
-	pdac->InternalVoltageReference(AD569X_INT_REF_OFF);
+	vc_dac->InternalVoltageReference(AD569X_INT_REF_OFF);
+
+	// start ADCs
+	diff_adc.begin();
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -100,12 +103,12 @@ void loop()
 	//delay(1);
   int idx;
 
-  //idx = cmd.indexOf("PDAC::REFSET");
+  //idx = cmd.indexOf("VCDAC::REFSET");
   //Serial.println(idx);
 
    /*
     * Get command over serial
-    * PDAC::SET <x> <y>  
+    * VCDAC::SET <x> <y>  
     *   Set the channel <x> voltage of the piezo DAC to <y>
     */
 	if (cmd == "GO")
@@ -122,8 +125,8 @@ void loop()
 		int CUSTOM_LINE_LENGTH = Serial.parseInt();
 		int CUSTOM_SAMPLE_SIZE = Serial.parseInt();
      
-		ctrl = new PiezoDACController(pdac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
-		sampler = new SignalSampler(adc, CUSTOM_SAMPLE_SIZE);
+		ctrl = new PiezoDACController(vc_dac, CUSTOM_STEPSIZE, CUSTOM_LINE_LENGTH, LDAC, RNG);
+		sampler = new SignalSampler(sig_adc, CUSTOM_SAMPLE_SIZE);
 		scanner = new Scanner(*ctrl, *sampler, *phone, CUSTOM_LINE_LENGTH);     
     
 	}
@@ -141,56 +144,79 @@ void loop()
 	}
 
 
-	//else if (idx = cmd.indexOf("ADCDIFF::GET") == 0)
-	//{
-	//	//Serial.println("DACC!!!");
-	//	bool ok = false;
-	//	String channelPart;
-	//	int channel;
-	//	float value;
-	//	while (1)
-	//	{
-	//		String *parts;
-	//		//int num = splitString(cmd, ' ', parts);
-	//		//Serial.println("There were " + String(num) + " parts");
-	//		// extract channel
-	//		int pos = cmd.indexOf(' ', pos);
-	//		if (pos == -1) break;
-	//		channelPart = cmd.substring(pos + 1);
-	//		channel = channelPart.toInt();
-
-	//		// check range
-	//		if (channel < 1 || channel > 4)
-	//		{
-	//			Serial.println("Channel number must be 1, 2, 3 or 4 (for A, B, C or D)");
-	//			break;
-	//		}
-
-	//		ok = true;
-	//		break;
-	//	}
-
-	//	if (ok)
-	//	{
-
-	//		//long rand = random(0, dacMax);
-	//		//float rnd = 5.0F;
-	//		//rnd /= dacMax;
-	//		//rnd *= rand;
-	//		unsigned short val = pdac->ReadBack((unsigned char)channel);
-	//		Serial.print("Channel ");
-	//		Serial.print(channel);
-	//		Serial.print(" is set to ");
-	//		Serial.println(val);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// ADC COMMANDS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+	else if (idx = cmd.indexOf("ADC") == 0)
+	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// GET
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		if (cmd.indexOf("::GET"))
+		{			
+			//Serial.println("Measuring ADC");
+			bool ok = false;
+			String channelPart;
+			int channel;
+			float value;
+			while (1)
+			{
+				String *parts;
+				//int num = splitString(cmd, ' ', parts);
+				//Serial.println("There were " + String(num) + " parts");
+				// extract channel
+				int pos = cmd.indexOf(' ', pos);
+				if (pos == -1) break;
+				channelPart = cmd.substring(pos + 1);
+				channel = channelPart.toInt();
 
-	//	}
-	//	else {
-	//		Serial.println("PDAC::GET - Invalid command syntax!");
-	//	}
+				// check range
+				if (channel < 1 || channel > 4)
+				{
+					if (reply) Serial.println("Channel number must be 1, 2, 3 or 4 (for A, B, C or D)");
+					break;
+				}
 
-	//}
+				ok = true;
+				break;
+			}
+
+			if (ok)
+			{
+
+				//long rand = random(0, dacMax);
+				//float rnd = 5.0F;
+				//rnd /= dacMax;
+				int16_t val;
+
+				// which adc?
+				if (cmd.indexOf("ADCDIFF::GET") == 0)
+				{
+					val = diff_adc.readADC_SingleEnded(channel + 1);
+					//Serial.print("Channel ");
+					//Serial.print(channel);
+					//Serial.print(" of diff_adc is ");
+				}
+				else if (cmd.indexOf("ADCSIG::GET") == 0)
+				{
+					val = sig_adc.readADC_SingleEnded(channel + 1);
+					//Serial.print("Channel ");
+					//Serial.print(channel);
+					//Serial.print(" of sig_adc is ");
+				}
+				Serial.println(val);
+
+
+
+			}
+			else {
+				Serial.println("AD...::GET - Invalid command syntax!");
+			}
+		}
+
+	}
 
 
 
@@ -199,21 +225,21 @@ void loop()
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	else if (cmd == "PDAC::PRINT")
+	else if (cmd == "VCDAC::PRINT")
 	{
 		Serial.print("Max value (u) = ");
-		Serial.println(pdac->getMaxValueU());
+		Serial.println(vc_dac->getMaxValueU());
 		Serial.print("Max value (f) = ");
-		Serial.println(pdac->getMaxValueF());
+		Serial.println(vc_dac->getMaxValueF());
 		Serial.print("Bits = ");
-		Serial.println(pdac->getBits());
+		Serial.println(vc_dac->getBits());
 	}
-	else if (cmd == "PDAC::RESET")
+	else if (cmd == "VCDAC::RESET")
 	{
-		pdac->Reset(AD569X_RST_MIDSCALE);
+		vc_dac->Reset(AD569X_RST_MIDSCALE);
 		if (reply) Serial.println("Resetting Piezo DAC");
 	}
-	else if (cmd.indexOf("PDAC::REFSET") == 0)
+	else if (cmd.indexOf("VCDAC::REFSET") == 0)
 	{
 		bool ok = false;
 		String part;
@@ -237,11 +263,11 @@ void loop()
 				Serial.print("Turning internal reference ");
 				Serial.println(val == 1 ? "on" : "off");
 			}
-			pdac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
+			vc_dac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
 		}
 		else
 		{
-			if (reply) Serial.println("PDAC::REFSET - Invalid command syntax!");
+			if (reply) Serial.println("VCDAC::REFSET - Invalid command syntax!");
 		}
 	}
 	else
@@ -250,7 +276,7 @@ void loop()
 		// SET DAC VOLTAGE (FOR DEBUG)
 		//////////////////////////////////////////////////////
 
-		if (idx = cmd.indexOf("PDAC::SET") == 0)
+		if (idx = cmd.indexOf("VCDAC::SET") == 0)
 		{
 			//Serial.println("DACC!!!");
 			bool ok = false;
@@ -307,7 +333,7 @@ void loop()
 				//float rnd = 5.0F;
 				//rnd /= dacMax;
 				//rnd *= rand;
-				pdac->SetVoltage(channel, value, 5.0f);
+				vc_dac->SetVoltage(channel, value, 5.0f);
 				//dac->SetOutput(1U << (channel - 1), 
 
 
@@ -322,7 +348,7 @@ void loop()
 		////////////////////////////////////////////
 		// READ THE DAC VOLTAGE
 		////////////////////////////////////////////
-		else if (idx = cmd.indexOf("PDAC::GET") == 0)
+		else if (idx = cmd.indexOf("VCDAC::GET") == 0)
 		{
 			//Serial.println("DACC!!!");
 			bool ok = false;
@@ -358,7 +384,7 @@ void loop()
 				//float rnd = 5.0F;
 				//rnd /= dacMax;
 				//rnd *= rand;
-				unsigned short val = pdac->ReadBack((unsigned char)channel);
+				unsigned short val = vc_dac->ReadBack((unsigned char)channel);
 				if (reply)
 				{
 					Serial.print("Channel ");
@@ -371,7 +397,7 @@ void loop()
 
 			}
 			else {
-				if (reply) Serial.println("PDAC::GET - Invalid command syntax!");
+				if (reply) Serial.println("VCDAC::GET - Invalid command syntax!");
 			}
 
 		}
