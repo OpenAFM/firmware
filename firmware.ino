@@ -69,7 +69,7 @@ RTx* phone = new RTx();
 DAC_AD5696* vc_dac = new DAC_AD5696();
 //DAC_AD5696* vcdac = new DAC_AD5696();
 PiezoDACController* ctrl = new PiezoDACController(vc_dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
-SignalSampler* sampler;// = new SignalSampler(adc, SAMPLE_SIZE);
+SignalSampler* sampler = new SignalSampler(diff_adc, SAMPLE_SIZE);
 Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 //unsigned char zchar = (unsigned char)0;
 

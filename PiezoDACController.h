@@ -61,12 +61,16 @@ private:
 	// set the x & y coordinates
 	int setCoordinates();
 
-	// current x position in the matrix
+	// current position relative to origin (0,0)
 	int currentX;
-	// current y position in the matrix
 	int currentY;
-	// not used; intended to store height information.
 	int currentZ;
+
+	// the starting DAC output values (values from 0 to 65535)
+	uint16_t startingXPlus;
+	uint16_t startingXMinus;
+	uint16_t startingYPlus;
+	uint16_t startingYMinus;
 
 	// the current DAC output values (values from 0 to 65535)
 	uint16_t currentXPlus;
@@ -83,6 +87,11 @@ private:
 		allAtOnce says whether to move step by step, \a times times, or just do all steps in one go (large voltage change)
 	*/
 	int move(PIEZO_DIRECTION direction, unsigned int times, bool allAtOnce);
+
+	/*!
+		Go to some coordinates
+	*/
+	int PiezoDACController::GotoCoordinates(uint16_t x, uint16_t y);
 
 	/*!
 		Set DAC output.  Includes scaling etc.

@@ -24,6 +24,9 @@ PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength,
   this->currentY = 0;
   this->currentZ = 0;
 
+  startingX = 0;
+  startingY = 0;
+
   // should start with DACs at mid range
   SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
 
@@ -69,10 +72,9 @@ int PiezoDACController::SetDACOutput(uint8_t channels, uint16_t value)
 	return 0;
 }
 
-
 int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool allAtOnce)
 {
-	int adiff = allAtOnce ? steps : 1; // if all at once, change voltage by full amount in one go.  Otherwise on at a time.
+	int adiff = allAtOnce ? steps : 1; // if all at once, change voltage by full amount in one go.  Otherwise one at a time.
 	int lim = allAtOnce ? 1 : steps;  // if all in one go, only do once, otherwise do each step
 
 	uint8_t channelPlus = 0;
@@ -88,7 +90,9 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 	{
 		// for Z up/down, increment/decrement all dac channels
 	case Z_UP:
+		currentZ++;
 	case Z_DOWN:
+		currentZ--;
 		diff = direction == Z_UP ? adiff : -adiff;  // increase or decrease?
 
 		for (int i = 0; i < lim; i++)
@@ -102,16 +106,20 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 		break;
 
 	case X_UP:
+		currentX++;
 	case X_DOWN:
+		currentX--;
 		diff = direction == X_UP ? adiff : -adiff;  // increase or decrease?
 		currentPlus = currentXPlus;
 		currentMinus = currentXMinus;
 		channelPlus = X_PLUS;
-		channelMinus = X_MINUS;;
+		channelMinus = X_MINUS;
 		break;
 
 	case Y_UP:
+		currentY++;
 	case Y_DOWN:
+		currentY--;
 		diff = direction == Y_UP ? adiff : -adiff;  // increase or decrease?
 		currentPlus = currentXPlus;
 		currentMinus = currentXMinus;
@@ -133,11 +141,23 @@ int PiezoDACController::move(PIEZO_DIRECTION direction, unsigned int steps, bool
 	return 0;
 }
 
-// reset coordinates to 0,0
+
+int PiezoDACController::GotoCoordinates(uint16_t x, uint16_t y)
+{
+	// difference?
+	int diffX = x - currentX;
+	int diffY = y - currentY;
+
+	move(diffX > 0 ? X_UP : X_DOWN, diffX, true);
+	move(diffY > 0 ? Y_UP : Y_DOWN, diffY, true);
+}
+
+// reset coordinates to startingX and startingY
 unsigned int PiezoDACController::reset() {
   currentStep = 0;
   currentZ = 0;
   setCoordinates();
+  GotoCoordinates(0, 0);
   //go(CHANNEL_A, currentX);
   //go(CHANNEL_B, currentY);
   return currentStep;
