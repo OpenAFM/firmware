@@ -65,9 +65,9 @@
 Adafruit_ADS1015 adc;
 RTx* phone = new RTx();
 DAC_AD5696* dac = new DAC_AD5696();
-PiezoDACController* ctrl;// = new PiezoDACController(dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
-SignalSampler* sampler;// = new SignalSampler(adc, SAMPLE_SIZE);
-Scanner* scanner;// = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
+PiezoDACController* ctrl = new PiezoDACController(dac, STEPSIZE, LINE_LENGTH, LDAC, RNG);
+SignalSampler* sampler = new SignalSampler(adc, SAMPLE_SIZE);
+Scanner* scanner = new Scanner(*ctrl, *sampler, *phone, LINE_LENGTH);
 //unsigned char zchar = (unsigned char)0;
 
 //long dacMax = (long)5 * (long)65535;

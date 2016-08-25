@@ -25,7 +25,7 @@ PiezoDACController::PiezoDACController(ADDAC *dac, int stepSize, int lineLength,
   this->currentZ = 0;
 
   // should start with DACs at mid range
-  SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
+  //SetDACOutput(AD569X_ADDR_DAC_ALL, 0x7FFF);
 
   invertChannels = false;
 }
