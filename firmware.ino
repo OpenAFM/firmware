@@ -79,7 +79,10 @@ void setup() {
 	unsigned char i2csetup = ADDAC::Setup(LDAC);
 	Serial.println(i2csetup == 1 ? "success!" : "failed!");
 
-	dac->Init(0,0);
+	dac->Init(16, 0,0);
+
+	// turn internal reference off
+	dac->InternalVoltageReference(AD569X_INT_REF_OFF);
 }
 
 extern String const PARAM_LINE_LENGTH;
@@ -133,6 +136,15 @@ void loop()
 	{
 		Serial.println("PONG");
 	}
+	else if (cmd == "PDAC::PRINT")
+	{
+		Serial.print("Max value (u) = ");
+		Serial.println(dac->getMaxValueU());
+		Serial.print("Max value (f) = ");
+		Serial.println(dac->getMaxValueF());
+		Serial.print("Bits = ");
+		Serial.println(dac->getBits());
+	}
 	else if (cmd == "PDAC::RESET")
 	{
 		dac->Reset(AD569X_RST_MIDSCALE);
@@ -160,7 +172,7 @@ void loop()
 		{
 			Serial.print("Turning internal reference ");
 			Serial.println(val == 1 ? "on" : "off");
-			dac->InternalVoltageReference(val == 0 ? 1 : 0);
+			dac->InternalVoltageReference(val == 0 ? AD569X_INT_REF_OFF : AD569X_INT_REF_ON);
 		}
 		else
 		{
@@ -228,6 +240,7 @@ void loop()
 				//rnd /= dacMax;
 				//rnd *= rand;
 				dac->SetVoltage(channel, value, 5.0f);
+				//dac->SetOutput(1U << (channel - 1), 
 
 
 

@@ -147,7 +147,7 @@ class DAC_AD5696 : public ADDAC
 public:
 
 	/*! Initializes the device. */
-	unsigned char Init(unsigned char a1LogicLevel,
+	unsigned char Init(unsigned char numBits, unsigned char a1LogicLevel,
 		unsigned char a0LogicLevel);
 
 	/*! Resets the device(clears the outputs to either zero scale or midscale). */
@@ -178,6 +178,10 @@ public:
 	/*! Set the output value of a channel by binary. */
 	int SetOutput(uint8_t channel, uint16_t value);
 
+	uint16_t getMaxValueU() { return maxValue; }
+	float getMaxValueF() { return maxValueF; }
+	unsigned char getBits() { return deviceBitsNumber; }
+
 private:
 
 
@@ -188,6 +192,8 @@ private:
 	unsigned char deviceBitsNumber = 0;
 	unsigned char addressPinA1 = 0;
 	unsigned char addressPinA0 = 0;
+	uint16_t maxValue = 0;
+	float maxValueF = 0;
 
 };
 

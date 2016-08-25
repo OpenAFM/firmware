@@ -62,18 +62,29 @@
  *          Example: 0x0 - I2C peripheral was not initialized.
  *                 0x1 - I2C peripheral is initialized.
 *******************************************************************************/
-unsigned char DAC_AD5696::Init(unsigned char a1LogicLevel,
+unsigned char DAC_AD5696::Init(unsigned char numBits, unsigned char a1LogicLevel,
                           unsigned char a0LogicLevel)
 {
     unsigned char status = 0;
 
-	deviceBitsNumber = 16;
+	deviceBitsNumber = numBits;
     
     /* Store logic levels of A1 and A0 that set the two LSBs of the slave 
        address. */
        
     addressPinA1 = a1LogicLevel << 1;
     addressPinA0 = a0LogicLevel << 0;
+
+	// figure out the maximum value (digital) of the DAC
+	maxValue = 1U;
+	//Serial.println(maxValue);
+	for (int i = 0; i < deviceBitsNumber - 1; i++)
+	{
+		maxValue = maxValue << 1;
+		maxValue |= 1U;
+		//Serial.println(maxValue);
+	}
+	maxValueF = maxValue;
     
     return status;
 }
@@ -275,20 +286,45 @@ float DAC_AD5696::SetVoltage(unsigned char channel,
                         float outputVoltage, 
                         float vRef)
 {
-    unsigned short binaryValue   = 0;
-    float          actualVoltage = 0;
-    
-    if(vRef == 0)
-    {
-        vRef = 2.5;
-    }
-    vRef *= (AD569X_GAIN_STATE != 0) ? 2 : 1;
-    binaryValue = (unsigned short)(outputVoltage * (1ul << deviceBitsNumber) / 
-                                  vRef);
-    WriteFunction(AD569X_CMD_WR_UPDT_DAC_N, channel, binaryValue);
-    actualVoltage = (float)(vRef * binaryValue) / (1ul << deviceBitsNumber);
-    
-    return actualVoltage;
+    //unsigned short binaryValue   = 0;
+    //float          actualVoltage = 0;
+    //
+    //if(vRef == 0)
+    //{
+    //    vRef = 5.0;
+    //}
+    ////vRef *= (AD569X_GAIN_STATE != 0) ? 2 : 1;
+    //binaryValue = (unsigned short)(outputVoltage * (1ul << deviceBitsNumber) / 
+    //                              vRef);
+    //WriteFunction(AD569X_CMD_WR_UPDT_DAC_N, channel, binaryValue);
+    //actualVoltage = (float)(vRef * binaryValue) / (1ul << deviceBitsNumber);
+    //
+    //return actualVoltage;
+
+	uint16_t value = (outputVoltage / vRef) * (maxValueF);
+
+	Serial.println(value);
+
+
+	// need to shift it?
+	value = value << (16 - deviceBitsNumber);
+
+	Serial.println(value);
+
+	channel &= B00001111;  // smash any of the higher bits, not used here.
+	uint8_t lsb = value;
+	uint8_t msb = value >> 8;
+
+	Serial.println(msb);
+	Serial.println(lsb);
+	Serial.println(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
+	Serial.println(B00110000 | channel);
+
+	Wire.beginTransmission(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
+	Wire.write(B00110000 | channel);  // set and update DAC channels;
+	Wire.write(msb);
+	Wire.write(lsb);
+	Wire.endTransmission();
 }
 
 
@@ -313,7 +349,7 @@ int DAC_AD5696::SetOutput(uint8_t channel,
 	uint8_t lsb = value;
 	uint8_t msb = value >> 8;
 
-	Wire.beginTransmission(12);
+	Wire.beginTransmission(AD569X_5MSB_SLAVE_ADDR | addressPinA1 | addressPinA0);
 	Wire.write(B00110000 | channel);  // set and update DAC channels;
 	Wire.write(lsb);  // set to half voltage
 	Wire.write(msb);
