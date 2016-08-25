@@ -30,6 +30,8 @@ class SignalSampler
 		int init(int);
 		int detectPixel();
 		int reset();
+		int getSampleSize() { return sampleSize; }
+		void setSampleSize(int sampleSize) { this->sampleSize = sampleSize; }
 };
 
 #endif
